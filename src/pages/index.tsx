@@ -2,12 +2,16 @@ import { useState } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
+import styled from "styled-components"
+import tw from "twin.macro"
 
 import { api, type RouterOutputs } from "../utils/api";
 import { Header } from "../components/Header";
 import { NoteEditor } from "../components/NoteEditor";
 import { NoteCard } from "../components/NoteCard";
 import { Modal } from "../components/Modal";
+import { TopicSelector } from "../styles/TopicSelector";
+import { boolean } from "zod";
 
 const Home: NextPage = () => {
   return (
@@ -27,12 +31,19 @@ const Home: NextPage = () => {
 
 export default Home;
 
+
+
 type Topic = RouterOutputs["topic"]["getAll"][0];
 
 const Content: React.FC = () => {
   const { data: sessionData } = useSession();
 
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  function handleClick() {
+    setIsActive(!isActive);
+  }
 
   const { data: topics, refetch: refetchTopics } = api.topic.getAll.useQuery(
     undefined, // no input
@@ -52,9 +63,21 @@ const Content: React.FC = () => {
 
   const deleteTopic = api.topic.delete.useMutation({
     onSuccess: () => {
+      setSelectedTopic(null);
       void refetchTopics();
     },
   });
+
+
+  // const getTopicById = api.topic.getTopicById.useQuery(
+  //   {
+  //     topicId: selectedTopic?.id ?? "",
+  //   },
+  //   {
+  //     enabled: sessionData?.user !== undefined && selectedTopic !== null,
+  //   }
+  // );
+
 
   const { data: notes, refetch: refetchNotes } = api.note.getAll.useQuery(
     {
@@ -78,26 +101,50 @@ const Content: React.FC = () => {
   });
 
   return (
-    <div className="mx-5 mt-5 grid grid-cols-4 gap-2">
-      <div className="px-2">
-        < label htmlFor="my-modal-4" className="btn" > Add Note </label >
+    <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
+      <div id="rightOptions" className="px-2 col-span-1">
+        {selectedTopic && < label htmlFor="my-modal-4" className="btn" > Add Note </label >}
         <ul className="menu rounded-box w-56 bg-base-100 p-2">
           {topics?.map((topic) => (
             <li key={topic.id}>
-              <div className="grid-flow-col gap-3">
-                <div>
-                  <a
-                    href="#"
-                    onClick={(evt) => {
-                      evt.preventDefault();
-                      setSelectedTopic(topic);
-                    }}
-                  >
-                    {topic.title}
+              <div className="grid grid-cols-5 gap-3">
 
-                  </a>
-                </div>
-                <div>
+                {/* <div */}
+                {/*   id="topicDiv" */}
+                {/*   className="col-span-4 bg-indigo-400 " */}
+                {/* // style={{ */}
+                {/* //   backgroundColor: isActive ? 'salmon' : '', */}
+                {/* //   color: isActive ? 'white' : '', */}
+                {/* // }} */}
+                {/* > */}
+                {/* <TopicSelector> */}
+                <a
+                  id="topicAnchor"
+
+                  className="col-span-4 bg-indigo-400 "
+                  // className={isActive ? "bg-sky-400" : ""}
+                  href="#"
+                  onClick={(evt) => {
+                    evt.preventDefault();
+                    // console.log(`topic set to ${topic.title}`)
+                    // console.log(topic)
+                    setSelectedTopic(topic);
+                    // setIsActive(isActive => !isActive);
+                    if (topic.id === selectedTopic?.id) {
+                      console.log(`topic is same as selected topic!!!`)
+                    }
+                    else {
+                      console.log(topic);
+                      console.log(selectedTopic);
+                    }
+                  }}
+                >
+                  {topic.title}
+                </a>
+                {/* </TopicSelector> */}
+
+                {/* </div> */}
+                <div className="col-span-1">
                   <button
                     onClick={() => void deleteTopic.mutate({ id: topic.id })}
                     className="btn-warning btn-xs btn px-5"
@@ -124,12 +171,13 @@ const Content: React.FC = () => {
           }}
         />
       </div>
-      <div className="col-span-3">
+      <div id="noteDiv" className="col-span-1">
         <div>
           {notes?.map((note) => (
             <div key={note.id} className="mt-5">
               <NoteCard
                 note={note}
+                // topic={topics?.find((element) => element.id === note.topicId)}
                 onDelete={() => void deleteNote.mutate({ id: note.id })}
               />
             </div>

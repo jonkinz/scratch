@@ -11,6 +11,23 @@ export const topicRouter = createTRPCRouter({
     });
   }),
 
+  getTopicById: protectedProcedure
+    .input(z.object({ topicId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.topic.findUnique({
+        where: {
+          id: input.topicId,
+        },
+      });
+    }),
+  // topicById: protectedProcedure.query(async (opts) => {
+  //   return ctx.prisma.topic.findUnique({
+  //     where: {
+  //       id: input.topicId,
+  //     },
+  //   });
+  // }),
+  //
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
