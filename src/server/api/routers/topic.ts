@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
+import { ratelimit } from "../../../utils/rateLimit";
 
 export const topicRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
@@ -40,7 +42,10 @@ export const topicRouter = createTRPCRouter({
 
   create: protectedProcedure
     .input(z.object({ title: z.string() }))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.session.user.id;
+      const { success } = await ratelimit.limit(authorId);
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
       return ctx.prisma.topic.create({
         data: {
           title: input.title,
