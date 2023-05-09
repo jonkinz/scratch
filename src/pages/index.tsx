@@ -3,14 +3,14 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import styled from "styled-components"
-import tw from "twin.macro"
+import { toast } from "react-hot-toast";
 
 import { api, type RouterOutputs } from "../utils/api";
 import { Header } from "../components/Header";
 import { NoteEditor } from "../components/NoteEditor";
 import { NoteCard } from "../components/NoteCard";
 import { Modal } from "../components/Modal";
-import { TopicSelector } from "../styles/TopicSelector";
+import { TopicSelector } from "../components/TopicSelector";
 import { boolean } from "zod";
 
 const Home: NextPage = () => {
@@ -33,7 +33,9 @@ export default Home;
 
 
 
-type Topic = RouterOutputs["topic"]["getAll"][0];
+// type Topic = RouterOutputs["topic"]["getAll"][0];
+// Chirp tutorial uses 
+type Topic = RouterOutputs["topic"]["getAll"][number];
 
 const Content: React.FC = () => {
   const { data: sessionData } = useSession();
@@ -41,9 +43,6 @@ const Content: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [isActive, setIsActive] = useState(false);
 
-  function handleClick() {
-    setIsActive(!isActive);
-  }
 
   const { data: topics, refetch: refetchTopics } = api.topic.getAll.useQuery(
     undefined, // no input
@@ -58,6 +57,15 @@ const Content: React.FC = () => {
   const createTopic = api.topic.create.useMutation({
     onSuccess: () => {
       void refetchTopics();
+    },
+    onError: (e) => {
+      // const errorMessage = e.data?.zodError?.fieldErrors.content;
+      // if (errorMessage && errorMessage[0]) {
+      //   toast.error(errorMessage[0]);
+      // } else {
+      //   toast.error("Failed to post! Please try again later.");
+      // }
+      // toast.error("Failed to Post! Please try again later");
     },
   });
 
@@ -78,6 +86,21 @@ const Content: React.FC = () => {
   //   }
   // );
 
+  // const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+  //   onSuccess: () => {
+  //     setInput("");
+  //     void ctx.posts.getAll.invalidate();
+  //   },
+  //   onError: (e) => {
+  //     const errorMessage = e.data?.zodError?.fieldErrors.content;
+  //     if (errorMessage && errorMessage[0]) {
+  //       toast.error(errorMessage[0]);
+  //     } else {
+  //       toast.error("Failed to post! Please try again later.");
+  //     }
+  //     // toast.error("Failed to Post! Please try again later");
+  //   },
+  // });
 
   const { data: notes, refetch: refetchNotes } = api.note.getAll.useQuery(
     {
@@ -92,6 +115,15 @@ const Content: React.FC = () => {
     onSuccess: () => {
       void refetchNotes();
     },
+    onError: (e) => {
+      // const errorMessage = e.data?.zodError?.fieldErrors.content;
+      // if (errorMessage && errorMessage[0]) {
+      //   toast.error(errorMessage[0]);
+      // } else {
+      //   toast.error("Failed to post! Please try again later.");
+      // }
+      // toast.error("Failed to Post! Please try again later");
+    },
   });
 
   const deleteNote = api.note.delete.useMutation({
@@ -99,6 +131,24 @@ const Content: React.FC = () => {
       void refetchNotes();
     },
   });
+
+  const handleClick = (event: React.MouseEvent<Element, MouseEvent>, topic: Topic) => {
+    console.log('element clicked');
+    event.preventDefault();
+
+    setSelectedTopic(topic);
+    // console.log(`topic set to ${topic.title}`)
+    // console.log(topic)
+    setIsActive(isActive => !isActive);
+    if (topic.id === selectedTopic?.id) {
+      console.log(`topic is same as selected topic!!!`)
+    }
+    else {
+      console.log(topic);
+      console.log(selectedTopic);
+    }
+  };
+
 
   return (
     <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
@@ -118,29 +168,30 @@ const Content: React.FC = () => {
                 {/* // }} */}
                 {/* > */}
                 {/* <TopicSelector> */}
-                <a
-                  id="topicAnchor"
-
-                  className="col-span-4 bg-indigo-400 "
-                  // className={isActive ? "bg-sky-400" : ""}
-                  href="#"
-                  onClick={(evt) => {
-                    evt.preventDefault();
-                    // console.log(`topic set to ${topic.title}`)
-                    // console.log(topic)
-                    setSelectedTopic(topic);
-                    // setIsActive(isActive => !isActive);
-                    if (topic.id === selectedTopic?.id) {
-                      console.log(`topic is same as selected topic!!!`)
-                    }
-                    else {
-                      console.log(topic);
-                      console.log(selectedTopic);
-                    }
-                  }}
-                >
-                  {topic.title}
-                </a>
+                <TopicSelector handleClick={(event, topic) => handleClick(event, topic)} topic={topic} isSelected={topic.id === selectedTopic?.id} />
+                {/* <a */}
+                {/*   id="topicAnchor" */}
+                {/**/}
+                {/*   className="col-span-4 bg-indigo-400 " */}
+                {/*   // className={isActive ? "bg-sky-400" : ""} */}
+                {/*   href="#" */}
+                {/*   onClick={(evt) => { */}
+                {/*     evt.preventDefault(); */}
+                {/*     // console.log(`topic set to ${topic.title}`) */}
+                {/*     // console.log(topic) */}
+                {/*     setSelectedTopic(topic); */}
+                {/*     // setIsActive(isActive => !isActive); */}
+                {/*     if (topic.id === selectedTopic?.id) { */}
+                {/*       console.log(`topic is same as selected topic!!!`) */}
+                {/*     } */}
+                {/*     else { */}
+                {/*       console.log(topic); */}
+                {/*       console.log(selectedTopic); */}
+                {/*     } */}
+                {/*   }} */}
+                {/* > */}
+                {/*   {topic.title} */}
+                {/* </a> */}
                 {/* </TopicSelector> */}
 
                 {/* </div> */}
@@ -173,7 +224,8 @@ const Content: React.FC = () => {
       </div>
       <div id="noteDiv" className="col-span-1">
         <div>
-          {notes?.map((note) => (
+
+          {(notes && notes.length > 0) ? notes.map((note) => (
             <div key={note.id} className="mt-5">
               <NoteCard
                 note={note}
@@ -181,7 +233,7 @@ const Content: React.FC = () => {
                 onDelete={() => void deleteNote.mutate({ id: note.id })}
               />
             </div>
-          ))}
+          )) : <div>You don&apos;t have any notes</div>}
         </div>
         <Modal>
           <NoteEditor

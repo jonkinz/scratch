@@ -1,11 +1,11 @@
 import { useState } from "react";
-
 import ReactMarkdown from "react-markdown";
-
 import { type RouterOutputs } from "../utils/api";
-
 import { api } from "../utils/api";
-
+// import * as dayjs from 'dayjs'
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime)
 type Note = RouterOutputs["note"]["getAll"][0];
 type Topic = RouterOutputs["topic"]["getAll"][0];
 
@@ -41,6 +41,13 @@ export const NoteCard = ({
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="collapse-title text-xl font-bold">{note.title}</div>
+          <span
+            className="font-thin"
+          >
+            {` · ${dayjs(
+              note.createdAt
+            ).fromNow()}`}
+          </span>
           <div className="collapse-content">
             <article className="prose lg:prose-xl">
 
