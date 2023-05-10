@@ -20,8 +20,6 @@ import type { Note } from "@prisma/client";
 // });
 
 export const noteRouter = createTRPCRouter({
-
-
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
