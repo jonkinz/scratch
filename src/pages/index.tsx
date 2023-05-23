@@ -11,6 +11,8 @@ import { NoteEditor } from "../components/NoteEditor";
 import { NoteCard } from "../components/NoteCard";
 import { Modal } from "../components/Modal";
 import { TopicSelector } from "../components/TopicSelector";
+// import { LoadingPage, LoadingSpinner } from "~/components/loading";
+import { LoadingSpinner, LoadingPage } from "../components/LoadingSpinner";
 import { boolean } from "zod";
 
 const Home: NextPage = () => {
@@ -44,7 +46,8 @@ const Content: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
 
 
-  const { data: topics, refetch: refetchTopics } = api.topic.getAll.useQuery(
+  const { data: topics, refetch: refetchTopics, isLoading: topicsLoading } = api.topic.getAll.useQuery(
+
     undefined, // no input
     {
       enabled: sessionData?.user !== undefined,
@@ -111,7 +114,8 @@ const Content: React.FC = () => {
     }
   );
 
-  const createNote = api.note.create.useMutation({
+  // const createNote = api.note.create.useMutation({
+  const { mutate, isLoading: isCreatingNote } = api.note.create.useMutation({
     onSuccess: () => {
       void refetchNotes();
     },
@@ -133,68 +137,28 @@ const Content: React.FC = () => {
   });
 
   const handleClick = (event: React.MouseEvent<Element, MouseEvent>, topic: Topic) => {
-    console.log('element clicked');
     event.preventDefault();
-
     setSelectedTopic(topic);
-    // console.log(`topic set to ${topic.title}`)
-    // console.log(topic)
-    setIsActive(isActive => !isActive);
-    if (topic.id === selectedTopic?.id) {
-      console.log(`topic is same as selected topic!!!`)
-    }
-    else {
-      console.log(topic);
-      console.log(selectedTopic);
-    }
+    // setIsActive(isActive => !isActive);
   };
 
+  const Topics = () => {
+    if (topicsLoading) {
+      console.log('test')
 
-  return (
-    <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
-      <div id="rightOptions" className="px-2 col-span-1">
-        {selectedTopic && < label htmlFor="my-modal-4" className="btn" > Add Note </label >}
-        <ul className="menu rounded-box w-56 bg-base-100 p-2">
-          {topics?.map((topic) => (
+      return (
+        <div className="flex grow">
+          <LoadingPage />
+        </div>
+      )
+    }
+    return (
+      <ul className="menu rounded-box w-56 bg-base-100 p-2">
+        {
+          topics?.map((topic) => (
             <li key={topic.id}>
               <div className="grid grid-cols-5 gap-3">
-
-                {/* <div */}
-                {/*   id="topicDiv" */}
-                {/*   className="col-span-4 bg-indigo-400 " */}
-                {/* // style={{ */}
-                {/* //   backgroundColor: isActive ? 'salmon' : '', */}
-                {/* //   color: isActive ? 'white' : '', */}
-                {/* // }} */}
-                {/* > */}
-                {/* <TopicSelector> */}
                 <TopicSelector handleClick={(event, topic) => handleClick(event, topic)} topic={topic} isSelected={topic.id === selectedTopic?.id} />
-                {/* <a */}
-                {/*   id="topicAnchor" */}
-                {/**/}
-                {/*   className="col-span-4 bg-indigo-400 " */}
-                {/*   // className={isActive ? "bg-sky-400" : ""} */}
-                {/*   href="#" */}
-                {/*   onClick={(evt) => { */}
-                {/*     evt.preventDefault(); */}
-                {/*     // console.log(`topic set to ${topic.title}`) */}
-                {/*     // console.log(topic) */}
-                {/*     setSelectedTopic(topic); */}
-                {/*     // setIsActive(isActive => !isActive); */}
-                {/*     if (topic.id === selectedTopic?.id) { */}
-                {/*       console.log(`topic is same as selected topic!!!`) */}
-                {/*     } */}
-                {/*     else { */}
-                {/*       console.log(topic); */}
-                {/*       console.log(selectedTopic); */}
-                {/*     } */}
-                {/*   }} */}
-                {/* > */}
-                {/*   {topic.title} */}
-                {/* </a> */}
-                {/* </TopicSelector> */}
-
-                {/* </div> */}
                 <div className="col-span-1">
                   <button
                     onClick={() => void deleteTopic.mutate({ id: topic.id })}
@@ -206,47 +170,70 @@ const Content: React.FC = () => {
               </div>
             </li>
           ))}
-        </ul>
-        <div className="divider"></div>
-        <input
-          type="text"
-          placeholder="New Topic"
-          className="input-bordered input input-sm w-full"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              createTopic.mutate({
-                title: e.currentTarget.value,
-              });
-              e.currentTarget.value = "";
-            }
-          }}
-        />
-      </div>
-      <div id="noteDiv" className="col-span-1">
-        <div>
+      </ul>
+    )
+  }
 
-          {(notes && notes.length > 0) ? notes.map((note) => (
-            <div key={note.id} className="mt-5">
-              <NoteCard
-                note={note}
-                // topic={topics?.find((element) => element.id === note.topicId)}
-                onDelete={() => void deleteNote.mutate({ id: note.id })}
-              />
+  console.log(sessionData)
+  return (
+    <div>
+      {sessionData ? (
+        <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
+          <div id="leftOptions" className="px-2 col-span-1">
+            {selectedTopic && < label htmlFor="my-modal-4" className="btn" > Add Note </label >}
+            <Topics />
+            <div className="divider"></div>
+            <input
+              type="text"
+              placeholder="New Topic"
+              className="input-bordered input input-sm w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  createTopic.mutate({
+                    title: e.currentTarget.value,
+                  });
+                  e.currentTarget.value = "";
+                }
+              }}
+            />
+
+          </div>
+          <div id="rightDiv" className="col-span-1">
+            <div>
+              {(notes && notes.length > 0) ? notes.map((note) => (
+                <div key={note.id} className="mt-5">
+                  <NoteCard
+                    note={note}
+                    // topic={topics?.find((element) => element.id === note.topicId)}
+                    onDelete={() => void deleteNote.mutate({ id: note.id })}
+                  />
+                </div>
+              )) : <div>You don&apos;t have any notes</div>}
             </div>
-          )) : <div>You don&apos;t have any notes</div>}
+            <Modal>
+              <NoteEditor
+                onSave={({ title, content }) => {
+                  void mutate({
+                    title,
+                    content,
+                    topicId: selectedTopic?.id ?? "",
+                  });
+                }}
+              />
+            </Modal>
+          </div>
+
+          {isCreatingNote && (
+            <div className="flex items-center justify-center">
+              <LoadingPage />
+            </div>
+          )}
         </div>
-        <Modal>
-          <NoteEditor
-            onSave={({ title, content }) => {
-              void createNote.mutate({
-                title,
-                content,
-                topicId: selectedTopic?.id ?? "",
-              });
-            }}
-          />
-        </Modal>
-      </div>
     </div>
+  ) :
+  <div>test</div>
+
+}
   );
+
 };
