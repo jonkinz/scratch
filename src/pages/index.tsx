@@ -174,42 +174,66 @@ const Content: React.FC = () => {
     )
   }
 
-  console.log(sessionData)
+  const Notes = () => {
+    return (
+      <div>
+        {(notes && notes.length > 0) ? notes.map((note) => (
+          <div key={note.id} className="mt-5">
+            <NoteCard
+              note={note}
+              // topic={topics?.find((element) => element.id === note.topicId)}
+              onDelete={() => void deleteNote.mutate({ id: note.id })}
+            />
+          </div>
+        )) : <div>You don&apos;t have any notes on {selectedTopic?.title} </div>}
+      </div>
+    )
+  }
+
+  const CreateTopicButton = () => {
+    return (
+      <input
+        type="text"
+        placeholder="New Topic"
+        className="input-bordered input input-sm w-full"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            createTopic.mutate({
+              title: e.currentTarget.value,
+            });
+            e.currentTarget.value = "";
+          }
+        }}
+      />
+    )
+  }
+
+  const Hero = () => {
+    return (
+      <div className="hero min-h-screen bg-base-200">
+        <div className="hero-content text-center">
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold">Welcome to Notetaker</h1>
+            <p className="py-6">Please login to see your notes</p>
+            {/* <button className="btn btn-primary">Get Started</button> */}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  console.log(`isCreatingNote is ${isCreatingNote.toString()}`);
   return (
     <div>
-      {sessionData ? (
-        <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
+      {sessionData ?
+        (<div className="mx-5 mt-5 grid grid-cols-2 gap-2">
           <div id="leftOptions" className="px-2 col-span-1">
             {selectedTopic && < label htmlFor="my-modal-4" className="btn" > Add Note </label >}
             <Topics />
             <div className="divider"></div>
-            <input
-              type="text"
-              placeholder="New Topic"
-              className="input-bordered input input-sm w-full"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  createTopic.mutate({
-                    title: e.currentTarget.value,
-                  });
-                  e.currentTarget.value = "";
-                }
-              }}
-            />
-
+            <CreateTopicButton />
           </div>
           <div id="rightDiv" className="col-span-1">
-            <div>
-              {(notes && notes.length > 0) ? notes.map((note) => (
-                <div key={note.id} className="mt-5">
-                  <NoteCard
-                    note={note}
-                    // topic={topics?.find((element) => element.id === note.topicId)}
-                    onDelete={() => void deleteNote.mutate({ id: note.id })}
-                  />
-                </div>
-              )) : <div>You don&apos;t have any notes</div>}
-            </div>
+            <Notes />
             <Modal>
               <NoteEditor
                 onSave={({ title, content }) => {
@@ -228,12 +252,11 @@ const Content: React.FC = () => {
               <LoadingPage />
             </div>
           )}
-        </div>
+        </div>) : (
+          <Hero />
+        )
+      }
     </div>
-  ) :
-  <div>test</div>
-
-}
   );
 
 };
