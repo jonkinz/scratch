@@ -32,7 +32,7 @@ export const noteRouter = createTRPCRouter({
 
   create: protectedProcedure
     .input(
-      z.object({ title: z.string(), content: z.string(), topicId: z.string() })
+      z.object({ title: z.string().length(1), content: z.string(), topicId: z.string() })
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.note.create({

@@ -2,9 +2,6 @@ import { useState } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
-import styled from "styled-components"
-import { toast } from "react-hot-toast";
-
 import { api, type RouterOutputs } from "../utils/api";
 import { Header } from "../components/Header";
 import { NoteEditor } from "../components/NoteEditor";
@@ -12,7 +9,7 @@ import { NoteCard } from "../components/NoteCard";
 import { Modal } from "../components/Modal";
 import { TopicSelector } from "../components/TopicSelector";
 // import { LoadingPage, LoadingSpinner } from "~/components/loading";
-import { LoadingSpinner, LoadingPage } from "../components/LoadingSpinner";
+import { LoadingPage } from "../components/LoadingSpinner";
 import { boolean } from "zod";
 
 const Home: NextPage = () => {
@@ -38,6 +35,8 @@ export default Home;
 // type Topic = RouterOutputs["topic"]["getAll"][0];
 // Chirp tutorial uses 
 type Topic = RouterOutputs["topic"]["getAll"][number];
+// daniel bark video 
+
 
 const Content: React.FC = () => {
   const { data: sessionData } = useSession();
@@ -185,7 +184,9 @@ const Content: React.FC = () => {
               onDelete={() => void deleteNote.mutate({ id: note.id })}
             />
           </div>
-        )) : <div>You don&apos;t have any notes on {selectedTopic?.title} </div>}
+        )) : <>
+          <span>You don&apos;t have any notes on  </span><span className="font-bold">{selectedTopic?.title}</span>
+        </>}
       </div>
     )
   }

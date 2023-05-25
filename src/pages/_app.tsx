@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { api } from "../utils/api";
 
 import "../styles/globals.css";
+import { Toaster } from "react-hot-toast";
 // import GlobalStyles from "../styles/GlobalStyles";
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -15,6 +16,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       {/* <GlobalStyles /> */}
       <Component {...pageProps} />
+      <Toaster />
     </SessionProvider>
   );
 };

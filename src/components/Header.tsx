@@ -12,20 +12,23 @@ export const Header = () => {
       <div className="flex-none gap-2">
         <div className="dropdown-end dropdown">
           {sessionData?.user ? (
-            <label
-              tabIndex={0}
-              className="btn-ghost btn-circle avatar btn"
-              onClick={() => void signOut()}
-            >
-              <div className="w-10 rounded-full">
-                <Image
-                  src={sessionData?.user?.image ?? ""}
-                  alt={sessionData?.user?.name ?? ""}
-                  width={56}
-                  height={56}
-                />
-              </div>
-            </label>
+            <div className="tooltip tooltip-left" data-tip="Sign Out">
+              <label
+                tabIndex={0}
+                className="btn-ghost btn-circle avatar btn"
+                onClick={() => void signOut()}
+              >
+                <div className="w-10 rounded-full">
+                  <Image
+                    src={sessionData?.user?.image ?? ""}
+                    alt={sessionData?.user?.name ?? ""}
+                    width={56}
+                    height={56}
+                  />
+                </div>
+              </label>
+
+            </div>
           ) : (
             <button
               className="btn-ghost rounded-btn btn"
@@ -36,6 +39,6 @@ export const Header = () => {
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
