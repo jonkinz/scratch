@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, FocusEvent } from "react";
+import { useRef, forwardRef, useEffect } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { api, type RouterOutputs } from "../utils/api";
-import { Header } from "../components/Header";
-import { NoteEditor } from "../components/NoteEditor";
-import { NoteCard } from "../components/NoteCard";
-import { Modal } from "../components/Modal";
-import { TopicSelector } from "../components/TopicSelector";
+import { Header } from "~/components/Header";
+import { NoteEditor } from "~/components/NoteEditor";
+import { NoteCard } from "~/components/NoteCard";
+import { Modal } from "~/components/Modal";
+import { TopicSelector } from "~/components/TopicSelector";
 // import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { LoadingPage } from "../components/LoadingSpinner";
-import { boolean } from "zod";
+import { toast } from "react-hot-toast";
+
+type Note = RouterOutputs["note"]["getAll"][0];
 
 const Home: NextPage = () => {
   return (
@@ -78,32 +81,6 @@ const Content: React.FC = () => {
     },
   });
 
-
-  // const getTopicById = api.topic.getTopicById.useQuery(
-  //   {
-  //     topicId: selectedTopic?.id ?? "",
-  //   },
-  //   {
-  //     enabled: sessionData?.user !== undefined && selectedTopic !== null,
-  //   }
-  // );
-
-  // const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
-  //   onSuccess: () => {
-  //     setInput("");
-  //     void ctx.posts.getAll.invalidate();
-  //   },
-  //   onError: (e) => {
-  //     const errorMessage = e.data?.zodError?.fieldErrors.content;
-  //     if (errorMessage && errorMessage[0]) {
-  //       toast.error(errorMessage[0]);
-  //     } else {
-  //       toast.error("Failed to post! Please try again later.");
-  //     }
-  //     // toast.error("Failed to Post! Please try again later");
-  //   },
-  // });
-
   const { data: notes, refetch: refetchNotes } = api.note.getAll.useQuery(
     {
       topicId: selectedTopic?.id ?? "",
@@ -113,20 +90,26 @@ const Content: React.FC = () => {
     }
   );
 
+  const getNoteById = api.note.getById.useQuery(
+    "clhnuouv60001ml082drg4grb",
+    {
+      enabled: sessionData?.user !== undefined,
+    }
+  );
+
   // const createNote = api.note.create.useMutation({
   const { mutate, isLoading: isCreatingNote } = api.note.create.useMutation({
     onSuccess: () => {
       void refetchNotes();
     },
     onError: (e) => {
-      // const errorMessage = e.data?.zodError?.fieldErrors.content;
-      // if (errorMessage && errorMessage[0]) {
-      //   toast.error(errorMessage[0]);
-      // } else {
-      //   toast.error("Failed to post! Please try again later.");
-      // }
-      // toast.error("Failed to Post! Please try again later");
-    },
+      const errorMessage = e.data?.zodError?.fieldErrors.title;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to create note! Please try again later.");
+      }
+    }
   });
 
   const deleteNote = api.note.delete.useMutation({
@@ -138,12 +121,13 @@ const Content: React.FC = () => {
   const handleClick = (event: React.MouseEvent<Element, MouseEvent>, topic: Topic) => {
     event.preventDefault();
     setSelectedTopic(topic);
-    // setIsActive(isActive => !isActive);
   };
+
+
+  // void getNoteById.query("123")
 
   const Topics = () => {
     if (topicsLoading) {
-      console.log('test')
 
       return (
         <div className="flex grow">
@@ -192,9 +176,18 @@ const Content: React.FC = () => {
   }
 
   const CreateTopicButton = () => {
+    // const ref = useRef<HTMLInputElement>(null);
+    //
+    // useEffect(() => {
+    //   if (ref.current) {
+    //     ref.current.focus();
+    //   }
+    // }, [])
+
     return (
       <input
         type="text"
+        // ref={ref}
         placeholder="New Topic"
         className="input-bordered input input-sm w-full"
         onKeyDown={(e) => {
@@ -222,21 +215,33 @@ const Content: React.FC = () => {
       </div>
     )
   }
-  console.log(`isCreatingNote is ${isCreatingNote.toString()}`);
+
+  const ref = useRef<HTMLInputElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleShowModal = () => {
+    console.log('test')
+    setIsModalOpen((isModalOpen) => {
+      return !isModalOpen
+    })
+  }
+
   return (
     <div>
       {sessionData ?
         (<div className="mx-5 mt-5 grid grid-cols-2 gap-2">
           <div id="leftOptions" className="px-2 col-span-1">
-            {selectedTopic && < label htmlFor="my-modal-4" className="btn" > Add Note </label >}
+            {selectedTopic && < label htmlFor="my-modal-4" className="btn"  > Add Note </label >}
             <Topics />
+
             <div className="divider"></div>
             <CreateTopicButton />
           </div>
           <div id="rightDiv" className="col-span-1">
             <Notes />
-            <Modal>
+            <Modal setIsVisible={() => { handleShowModal }}>
               <NoteEditor
+                isOpen={isModalOpen}
                 onSave={({ title, content }) => {
                   void mutate({
                     title,

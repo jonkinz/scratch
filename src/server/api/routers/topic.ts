@@ -5,12 +5,15 @@ import { TRPCError } from "@trpc/server";
 import { ratelimit } from "../../../utils/rateLimit";
 
 export const topicRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.topic.findMany({
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    const topics = await ctx.prisma.topic.findMany({
       where: {
         userId: ctx.session.user.id,
+
       },
+      orderBy: [{ createdAt: "desc" }]
     });
+    return topics;
   }),
 
   getTopicById: protectedProcedure
@@ -41,16 +44,19 @@ export const topicRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(z.object({ title: z.string() }))
+    // A topic title should be a string of at least one character, but no more than 100 chars.
+    .input(z.object({ title: z.string().min(1).max(100) }))
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
       const { success } = await ratelimit.limit(authorId);
       if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
-      return ctx.prisma.topic.create({
+
+      const topic = await ctx.prisma.topic.create({
         data: {
           title: input.title,
           userId: ctx.session.user.id,
         },
       });
+      return topic;
     }),
 });

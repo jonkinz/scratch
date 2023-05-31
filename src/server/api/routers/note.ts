@@ -4,7 +4,8 @@ import { TRPCError } from "@trpc/server";
 // import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 // import { Redis } from "@upstash/redis";
 import type { Note } from "@prisma/client";
-
+// import * as Constants from "../../../constants"
+import * as Constants from "~/constants"
 
 // Create a new ratelimiter, that allows 10 requests per 10 seconds
 // const ratelimit = new Ratelimit({
@@ -19,6 +20,18 @@ import type { Note } from "@prisma/client";
 //   prefix: "@upstash/ratelimit",
 // });
 
+// const NOTE_TITLE_LENGTH_MIN = 1;
+// const NOTE_TITLE_LENGTH_MAX = 3;
+// const ERROR_MESSAGE_MIN = `Note title should be at least ${NOTE_TITLE_LENGTH_MIN} character`;
+// const ERROR_MESSAGE_MAX = `Note title should be at least ${NOTE_TITLE_LENGTH_MAX} characters`;
+
+const NoteSchema = z.object({
+  title: z.string().min(Constants.NOTE_TITLE_LENGTH_MIN, { message: Constants.ERROR_MESSAGE_MIN }).max(Constants.NOTE_TITLE_LENGTH_MAX, { message: Constants.ERROR_MESSAGE_MAX }),
+  content: z.string(),
+  topicId: z.string(),
+})
+
+
 export const noteRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -32,7 +45,8 @@ export const noteRouter = createTRPCRouter({
 
   create: protectedProcedure
     .input(
-      z.object({ title: z.string().length(1), content: z.string(), topicId: z.string() })
+      // z.object({ title: z.string().min(1).max(2), content: z.string(), topicId: z.string() })
+      NoteSchema
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.note.create({
@@ -54,4 +68,18 @@ export const noteRouter = createTRPCRouter({
         take: 100,
       });
     }),
+
+  // get a note by its id
+  getById: protectedProcedure
+    .input(z.string())
+    .query(({ ctx, input }) => {
+      return ctx.prisma.note.findFirst({
+        where: {
+          id: input,
+        },
+      });
+    }),
+
+
 });
+
