@@ -1,4 +1,4 @@
-import { useState, FocusEvent } from "react";
+import { useState, FocusEvent, TransitionEvent } from "react";
 import { useRef, forwardRef, useEffect } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -216,14 +216,17 @@ const Content: React.FC = () => {
     )
   }
 
-  const ref = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleShowModal = (e: TransitionEvent<HTMLLabelElement>) => {
+    e.preventDefault();
 
-  const handleShowModal = () => {
-    console.log('test')
-    setIsModalOpen((isModalOpen) => {
-      return !isModalOpen
-    })
+    if (e.propertyName === 'transform') {
+      console.log('test')
+      console.log('event is', e.propertyName)
+      setIsModalOpen((isModalOpen) => {
+        return !isModalOpen
+      })
+    }
   }
 
   return (
@@ -239,7 +242,7 @@ const Content: React.FC = () => {
           </div>
           <div id="rightDiv" className="col-span-1">
             <Notes />
-            <Modal setIsVisible={() => { handleShowModal }}>
+            <Modal setIsVisible={handleShowModal}>
               <NoteEditor
                 isOpen={isModalOpen}
                 onSave={({ title, content }) => {

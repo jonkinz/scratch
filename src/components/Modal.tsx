@@ -1,8 +1,8 @@
-import { useRef, useEffect, useState, useCallback, RefObject, SyntheticEvent } from 'react';
+import { useRef, useEffect, useState, useCallback, RefObject, SyntheticEvent, TransitionEventHandler, TransitionEvent } from 'react';
 
 type ModalProps = {
   children: React.ReactNode; //👈 children prop typr
-  setIsVisible: () => void;
+  setIsVisible: (e: TransitionEvent<HTMLLabelElement>) => void;
 };
 
 export const Modal = (props: ModalProps) => {
@@ -14,6 +14,7 @@ export const Modal = (props: ModalProps) => {
 
       {/* Put this part before </body> tag */}
       < input type="checkbox" id="my-modal-4" className="modal-toggle" />
+
       <label htmlFor="my-modal-4" className="modal cursor-pointer" onTransitionEnd={props.setIsVisible}>
 
         <label className="modal-box relative w-11/12 max-w-5xl" htmlFor="">
