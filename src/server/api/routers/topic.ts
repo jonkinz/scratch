@@ -1,17 +1,16 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { ratelimit } from "../../../utils/rateLimit";
+import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
+import { ratelimit } from '../../../utils/rateLimit';
 
 export const topicRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const topics = await ctx.prisma.topic.findMany({
       where: {
         userId: ctx.session.user.id,
-
       },
-      orderBy: [{ createdAt: "desc" }]
+      orderBy: [{ createdAt: 'desc' }],
     });
     return topics;
   }),
@@ -49,7 +48,7 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
       const { success } = await ratelimit.limit(authorId);
-      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
 
       const topic = await ctx.prisma.topic.create({
         data: {

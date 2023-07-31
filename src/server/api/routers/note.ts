@@ -1,11 +1,11 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
+import { z } from 'zod';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
 // import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 // import { Redis } from "@upstash/redis";
-import type { Note } from "@prisma/client";
+import type { Note } from '@prisma/client';
 // import * as Constants from "../../../constants"
-import * as Constants from "~/constants"
+import * as Constants from '~/constants';
 
 // Create a new ratelimiter, that allows 10 requests per 10 seconds
 // const ratelimit = new Ratelimit({
@@ -26,11 +26,17 @@ import * as Constants from "~/constants"
 // const ERROR_MESSAGE_MAX = `Note title should be at least ${NOTE_TITLE_LENGTH_MAX} characters`;
 
 const NoteSchema = z.object({
-  title: z.string().min(Constants.NOTE_TITLE_LENGTH_MIN, { message: Constants.ERROR_MESSAGE_MIN }).max(Constants.NOTE_TITLE_LENGTH_MAX, { message: Constants.ERROR_MESSAGE_MAX }),
+  title: z
+    .string()
+    .min(Constants.NOTE_TITLE_LENGTH_MIN, {
+      message: Constants.ERROR_MESSAGE_MIN,
+    })
+    .max(Constants.NOTE_TITLE_LENGTH_MAX, {
+      message: Constants.ERROR_MESSAGE_MAX,
+    }),
   content: z.string(),
   topicId: z.string(),
-})
-
+});
 
 export const noteRouter = createTRPCRouter({
   delete: protectedProcedure
@@ -66,20 +72,18 @@ export const noteRouter = createTRPCRouter({
           topicId: input.topicId,
         },
         take: 100,
-      });
-    }),
-
-  // get a note by its id
-  getById: protectedProcedure
-    .input(z.string())
-    .query(({ ctx, input }) => {
-      return ctx.prisma.note.findFirst({
-        where: {
-          id: input,
+        orderBy: {
+          createdAt: 'desc',
         },
       });
     }),
 
-
+  // get a note by its id
+  getById: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
+    return ctx.prisma.note.findFirst({
+      where: {
+        id: input,
+      },
+    });
+  }),
 });
-
