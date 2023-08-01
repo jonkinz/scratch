@@ -280,6 +280,11 @@ const Content: React.FC = () => {
       {sessionData ? (
         <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
           <div id="leftOptions" className="col-span-1 px-2">
+            <CreateTopicButton />
+            <div className="divider"></div>
+            <Topics />
+          </div>
+          <div id="rightDiv" className="col-span-1">
             {selectedTopic && (
               <button
                 className="btn"
@@ -290,12 +295,7 @@ const Content: React.FC = () => {
                 Add Note
               </button>
             )}
-            <Topics />
 
-            <div className="divider"></div>
-            <CreateTopicButton />
-          </div>
-          <div id="rightDiv" className="col-span-1">
             <Notes />
             <Modal
               setIsVisible={handleShowModal}
