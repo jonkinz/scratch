@@ -12,14 +12,10 @@ import { TopicSelector } from '~/components/TopicSelector';
 // import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { LoadingPage } from '~/components/LoadingSpinner';
 import { useKeyDown } from '~/hooks/useKeyDown';
-
 import { toast } from 'react-hot-toast';
+import StatusBar from '~/components/StatusBar';
 
 const Home: NextPage = () => {
-  useKeyDown(() => {
-    () => console.log('test');
-  }, ['Escape']);
-
   return (
     <>
       <Head>
@@ -29,6 +25,7 @@ const Home: NextPage = () => {
       </Head>
       <main>
         <Header />
+        <StatusBar />
         <Content />
       </main>
     </>
@@ -248,6 +245,7 @@ const Content: React.FC = () => {
   const handleShowModal = (e: TransitionEvent<HTMLDialogElement>) => {
     e.preventDefault();
     if (e.propertyName === 'visibility') {
+      console.log(e);
       setIsModalOpen((isModalOpen) => {
         return !isModalOpen;
       });
@@ -257,46 +255,55 @@ const Content: React.FC = () => {
   const isCtrl = false;
 
   return (
-    <div
-      tabIndex={0}
-      // onKeyDown={(e) => {
-      //   console.log('tst');
-      //   if (e.key === 'Control') {
-      //     e.preventDefault();
-      //     isCtrl = true;
-      //   }
-      //   if (isCtrl && e.key === 'a') {
-      //     e.preventDefault();
-      //     setIsShowModal(true);
-      //   }
-      // }}
-      // onKeyUp={(e) => {
-      //   e.preventDefault();
-      //   if (e.key === 'Control') {
-      //     isCtrl = false;
-      //   }
-      // }}
-    >
-      {sessionData ? (
-        <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
-          <div id="leftOptions" className="col-span-1 px-2">
-            <CreateTopicButton />
-            <div className="divider"></div>
-            <Topics />
-          </div>
-          <div id="rightDiv" className="col-span-1">
-            {selectedTopic && (
-              <button
-                className="btn"
-                onClick={(): void => {
-                  setIsShowModal(true);
-                }}
-              >
-                Add Note
-              </button>
+    <>
+      <div
+        tabIndex={0}
+        // onKeyDown={(e) => {
+        //   console.log('tst');
+        //   if (e.key === 'Control') {
+        //     e.preventDefault();
+        //     isCtrl = true;
+        //   }
+        //   if (isCtrl && e.key === 'a') {
+        //     e.preventDefault();
+        //     setIsShowModal(true);
+        //   }
+        // }}
+        // onKeyUp={(e) => {
+        //   e.preventDefault();
+        //   if (e.key === 'Control') {
+        //     isCtrl = false;
+        //   }
+        // }}
+      >
+        {sessionData ? (
+          <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
+            <div id="leftOptions" className="col-span-1 px-2">
+              <CreateTopicButton />
+              <div className="divider"></div>
+              <Topics />
+            </div>
+            <div id="rightDiv" className="col-span-1">
+              {selectedTopic && (
+                <button
+                  className="btn"
+                  onClick={(): void => {
+                    setIsShowModal(true);
+                  }}
+                >
+                  Add Note
+                </button>
+              )}
+
+              <Notes />
+            </div>
+
+            {isCreatingNote && (
+              <div className="flex items-center justify-center">
+                <LoadingPage />
+              </div>
             )}
 
-            <Notes />
             <Modal
               setIsVisible={handleShowModal}
               isShowModal={isShowModal}
@@ -314,16 +321,10 @@ const Content: React.FC = () => {
               />
             </Modal>
           </div>
-
-          {isCreatingNote && (
-            <div className="flex items-center justify-center">
-              <LoadingPage />
-            </div>
-          )}
-        </div>
-      ) : (
-        <Hero />
-      )}
-    </div>
+        ) : (
+          <Hero />
+        )}
+      </div>
+    </>
   );
 };

@@ -1,0 +1,12 @@
+.modal-backdrop2 {
+  z-index: -1;
+  grid-column-start: 1;
+  grid-row-start: 1;
+  display: grid;
+  align-self: stretch;
+  justify-self: stretch;
+  color: transparent;
+}
+.dashboard {
+  padding: 24px;
+}
