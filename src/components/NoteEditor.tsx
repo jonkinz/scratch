@@ -3,6 +3,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from 'codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
+import { useOutsideClick } from '~/hooks/useClickOutside';
 
 interface ButtonProps {
   // sum: (a: number, b: number) => number;
@@ -59,6 +60,7 @@ export const NoteEditor = (props: ButtonProps) => {
 
   return (
     <div
+      id="noteEditorDiv"
       className="card mt-5 border border-gray-200 bg-base-100 shadow-xl"
       onKeyDown={(e) => {
         // e.preventDefault();

@@ -1,39 +1,22 @@
 import { useRef, useEffect } from 'react';
-import type { MouseEvent } from 'react';
-// import type { MouseEventHandler } from 'react';
 
-interface callback {
-  // sum: (a: number, b: number) => number;
-  // logMessage: (message: string) => void;
-  // 👇️ turn off type checking
-  // doSomething: (params: any) => any;
-  onSave: (note: { title: string; content: string }) => void;
-}
-// callback needs a type, so I've defined the simplest possible function
-export const useOutsideClick = (callback: () => void) => {
-  const ref = useRef<HTMLElement>(null);
+export const useOutsideClick = (callback: (e: any) => void) => {
+  const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    // const handleClick = (event: MouseEvent<HTMLElement>) => {
-    // const handleClick = (e: any) => {
-    //   if (ref.current && !ref.current.contains(event.target)) {
-    //     callback();
-    //   }
-    // };
-    if (!ref.current) throw Error('divRef is not assigned');
-    const handleClick: Event = (event): void => {
-      // Your code
-      if (ref.current && !ref.current.contains(event.target)) {
-        callback();
+    // if (!ref.current) throw Error('divRef is not assigned');
+    const handleClick = (event: MouseEvent): void => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        console.log('yyy');
+        callback(event);
       }
     };
-
     document.addEventListener('click', handleClick);
 
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, [ref]);
+  }, [callback]);
 
   return ref;
 };

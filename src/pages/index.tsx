@@ -9,9 +9,7 @@ import { NoteEditor } from '~/components/NoteEditor';
 import { NoteCard } from '~/components/NoteCard';
 import { Modal } from '~/components/Modal';
 import { TopicSelector } from '~/components/TopicSelector';
-// import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { LoadingPage } from '~/components/LoadingSpinner';
-import { useKeyDown } from '~/hooks/useKeyDown';
 import { toast } from 'react-hot-toast';
 import StatusBar from '~/components/StatusBar';
 
@@ -124,8 +122,6 @@ const Content: React.FC = () => {
     setSelectedTopic(topic);
   };
 
-  // void getNoteById.query("123")
-
   const Topics = () => {
     console.log(fetchStatus);
     if ('fetching' === fetchStatus || isTopicsLoading) {
@@ -138,6 +134,7 @@ const Content: React.FC = () => {
     }
 
     if (isTopicsLoading || isNotesLoading) {
+      console.log('topics or notest are loading');
       return <div>Loading</div>;
     }
 
@@ -178,7 +175,6 @@ const Content: React.FC = () => {
             <div key={note.id} className="mt-5">
               <NoteCard
                 note={note}
-                // topic={topics?.find((element) => element.id === note.topicId)}
                 onDelete={() => {
                   deleteNote.mutate({ id: note.id });
                 }}
@@ -196,14 +192,6 @@ const Content: React.FC = () => {
   };
 
   const CreateTopicButton = () => {
-    // const ref = useRef<HTMLInputElement>(null);
-    //
-    // useEffect(() => {
-    //   if (ref.current) {
-    //     ref.current.focus();
-    //   }
-    // }, [])
-
     return (
       <input
         type="text"
@@ -236,46 +224,26 @@ const Content: React.FC = () => {
     );
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+  // Is the note editor modal currently visible?
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  // Has the 'Add Note' button been clicked?
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
 
-  // 'isModalOpen' prop should be toggled when the transition event is 'visibility'. This allows
+  // 'isModalVisible' prop should be toggled when the transition event is 'visibility'. This allows
   // me to set the focus on the modal's input.
-  const handleShowModal = (e: TransitionEvent<HTMLDialogElement>) => {
+  const handleShowModal = (e: TransitionEvent<HTMLElement>) => {
     e.preventDefault();
     if (e.propertyName === 'visibility') {
-      console.log(e);
-      setIsModalOpen((isModalOpen) => {
-        return !isModalOpen;
+      // console.log(e);
+      setIsModalVisible((isModalVisible) => {
+        return !isModalVisible;
       });
     }
   };
 
-  const isCtrl = false;
-
   return (
     <>
-      <div
-        tabIndex={0}
-        // onKeyDown={(e) => {
-        //   console.log('tst');
-        //   if (e.key === 'Control') {
-        //     e.preventDefault();
-        //     isCtrl = true;
-        //   }
-        //   if (isCtrl && e.key === 'a') {
-        //     e.preventDefault();
-        //     setIsShowModal(true);
-        //   }
-        // }}
-        // onKeyUp={(e) => {
-        //   e.preventDefault();
-        //   if (e.key === 'Control') {
-        //     isCtrl = false;
-        //   }
-        // }}
-      >
+      <div tabIndex={0}>
         {sessionData ? (
           <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
             <div id="leftOptions" className="col-span-1 px-2">
@@ -303,14 +271,14 @@ const Content: React.FC = () => {
                 <LoadingPage />
               </div>
             )}
-
             <Modal
               setIsVisible={handleShowModal}
-              isShowModal={isShowModal}
+              isVisible={isModalVisible}
               setIsShowModal={setIsShowModal}
+              isShowModal={isShowModal}
             >
               <NoteEditor
-                isOpen={isModalOpen}
+                isOpen={isModalVisible}
                 onSave={({ title, content }) => {
                   mutate({
                     title,
