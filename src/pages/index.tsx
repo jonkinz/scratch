@@ -80,8 +80,8 @@ const Content: React.FC = () => {
   });
 
   const {
-    data: notes,
     refetch: refetchNotes,
+    data: notes,
     isLoading: isNotesLoading,
   } = api.note.getAll.useQuery(
     {
@@ -123,7 +123,7 @@ const Content: React.FC = () => {
   };
 
   const Topics = () => {
-    console.log(fetchStatus);
+    // console.log(fetchStatus);
     if ('fetching' === fetchStatus || isTopicsLoading) {
       console.log('topics loading');
       return (

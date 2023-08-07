@@ -3,13 +3,9 @@ import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from 'codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
-import { useOutsideClick } from '~/hooks/useClickOutside';
+import useKeyboardShortcut from '~/hooks/useKeyboardShortcut';
 
 interface ButtonProps {
-  // sum: (a: number, b: number) => number;
-  // logMessage: (message: string) => void;
-  // 👇️ turn off type checking
-  // doSomething: (params: any) => any;
   onSave: (note: { title: string; content: string }) => void;
   isOpen: boolean;
 }
@@ -38,17 +34,21 @@ const myTheme = EditorView.theme(
 );
 
 export const NoteEditor = (props: ButtonProps) => {
-  const [code, setCode] = useState<string>('');
+  const [note, setNote] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const saveNote = () => {
+    if (!props.isOpen) {
+      return;
+    }
     props.onSave({
       title,
-      content: code,
+      content: note,
     });
-    setCode('');
+    setNote('');
     setTitle('');
+    inputRef.current && inputRef.current.focus();
     //ToDo close modal
   };
 
@@ -56,30 +56,22 @@ export const NoteEditor = (props: ButtonProps) => {
     inputRef.current && inputRef.current.focus();
   }, [props.isOpen]);
 
-  let isCtrl = false;
+  //callback function for ctrl+s to save feature
+  const handleSave = (e: KeyboardEvent) => {
+    if (!props.isOpen) {
+      return;
+    }
+    e.preventDefault();
+    saveNote();
+  };
+
+  const config = { ctrlKey: true, code: 'KeyS' };
+  useKeyboardShortcut(handleSave, config);
 
   return (
     <div
       id="noteEditorDiv"
-      className="card mt-5 border border-gray-200 bg-base-100 shadow-xl"
-      onKeyDown={(e) => {
-        // e.preventDefault();
-        console.log('foo');
-        if (e.key === 'Control') {
-          e.preventDefault();
-          isCtrl = true;
-        }
-        if (isCtrl && e.key === 's') {
-          e.preventDefault();
-          saveNote();
-        }
-      }}
-      onKeyUp={(e) => {
-        e.preventDefault();
-        if (e.key === 'Control') {
-          isCtrl = false;
-        }
-      }}
+      className={'card mt-5 border border-gray-200 bg-base-100 shadow-xl'}
     >
       <div className="card-body">
         <h2 className="card-title">
@@ -94,7 +86,7 @@ export const NoteEditor = (props: ButtonProps) => {
           />
         </h2>
         <CodeMirror
-          value={code}
+          value={note}
           width="500px"
           height="30vh"
           minWidth="100%"
@@ -102,7 +94,7 @@ export const NoteEditor = (props: ButtonProps) => {
           extensions={[
             markdown({ base: markdownLanguage, codeLanguages: languages }),
           ]}
-          onChange={(value) => setCode(value)}
+          onChange={(value) => setNote(value)}
           className="border border-gray-300"
           theme={myTheme}
         />
@@ -110,11 +102,12 @@ export const NoteEditor = (props: ButtonProps) => {
       <div className="card-actions justify-end">
         <button
           style={{ margin: '5px' }}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             saveNote();
           }}
           className="btn-primary btn"
-          disabled={title.trim().length === 0 || code.trim().length === 0}
+          disabled={title.trim().length === 0 || note.trim().length === 0}
         >
           Save
         </button>
