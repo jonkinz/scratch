@@ -12,6 +12,7 @@ import { TopicSelector } from '~/components/TopicSelector';
 import { LoadingPage } from '~/components/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 import StatusBar from '~/components/StatusBar';
+import { FormikTest } from '~/components/FormTest';
 
 const Home: NextPage = () => {
   return (
@@ -229,21 +230,23 @@ const Content: React.FC = () => {
   // Has the 'Add Note' button been clicked?
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
 
-  // 'isModalVisible' prop should be toggled when the transition event is 'visibility'. This allows
+  // 'isModalVisible' prop should be toggled when the transition event is 'transform'. This allows
   // me to set the focus on the modal's input.
   const handleShowModal = (e: TransitionEvent<HTMLElement>) => {
-    e.preventDefault();
-    if (e.propertyName === 'visibility') {
-      // console.log(e);
-      setIsModalVisible((isModalVisible) => {
-        return !isModalVisible;
-      });
-    }
+    // e.preventDefault();
+    // console.log(e.propertyName);
+    // if (e.propertyName === 'transform') {
+    //   // console.log(e);
+    //   setIsModalVisible((isModalVisible) => {
+    //     return !isModalVisible;
+    //   });
+    // }
   };
 
   return (
     <>
       <div tabIndex={0}>
+        {/* <FormikTest /> */}
         {sessionData ? (
           <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
             <div id="leftOptions" className="col-span-1 px-2">

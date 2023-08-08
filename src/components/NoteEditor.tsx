@@ -38,7 +38,10 @@ export const NoteEditor = (props: ButtonProps) => {
   const [title, setTitle] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // disabled={title.trim().length === 0 || note.trim().length === 0}
+
   const saveNote = () => {
+    // e.preventDefault();
     if (!props.isOpen) {
       return;
     }
@@ -103,7 +106,7 @@ export const NoteEditor = (props: ButtonProps) => {
         <button
           style={{ margin: '5px' }}
           onClick={(e) => {
-            e.preventDefault();
+            // e.preventDefault();
             saveNote();
           }}
           className="btn-primary btn"
