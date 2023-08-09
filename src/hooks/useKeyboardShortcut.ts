@@ -14,7 +14,6 @@ type ShortcutAction = (e: KeyboardEvent) => void;
 
 // Custom type guard for keyboard event
 function isKeyBoardEvent(e: Event): e is KeyboardEvent {
-  console.log(e);
   return 'code' in e;
 }
 
@@ -30,6 +29,8 @@ export default function useKeyboardShortcut( //args
       // can just use instanceOf KeyboardEvent here
       if (!isKeyBoardEvent(e)) throw new Error('not a keyboard event');
       const { code, ctrlKey, altKey, shiftKey } = e;
+      // Uncomment to discover handy key codes
+      // console.log(code);
       if (config.code !== code) return;
       if (config.ctrlKey && !ctrlKey) return;
       if (config.shiftKey && !shiftKey) return;

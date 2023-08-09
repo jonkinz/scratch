@@ -16,11 +16,13 @@ export default function useOnScreen(ref: RefObject<HTMLElement>) {
   }, []);
 
   useEffect(() => {
-    if (observerRef.current) {
+    if (observerRef.current && ref.current instanceof Element) {
       observerRef.current.observe(ref.current);
     }
     return () => {
-      observerRef.current.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     };
   }, [ref]);
 

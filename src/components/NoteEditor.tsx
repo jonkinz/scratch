@@ -56,7 +56,13 @@ export const NoteEditor = (props: ButtonProps) => {
   };
 
   useEffect(() => {
-    inputRef.current && inputRef.current.focus();
+    if (props.isOpen) {
+      inputRef.current && inputRef.current.focus();
+    } else {
+      //clear note editor on close
+      setNote('');
+      setTitle('');
+    }
   }, [props.isOpen]);
 
   //callback function for ctrl+s to save feature

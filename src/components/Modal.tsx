@@ -1,33 +1,29 @@
-import { useState, useRef } from 'react';
-import type { TransitionEvent } from 'react';
-// import useKeypress from '~/hooks/useKeypress';
 import { useOutsideClick } from '~/hooks/useClickOutside';
-import { useIsVisible } from '~/hooks/useIsVisible';
+import useKeyboardShortcut from '~/hooks/useKeyboardShortcut';
 import '../styles/modal.module.css';
 
 type ModalProps = {
   children: React.ReactNode; //👈 children prop typr
-  setIsVisible: (e: TransitionEvent<HTMLElement>) => void;
+  // setIsVisible: (e: TransitionEvent<HTMLElement>) => void;
+  setIsVisible: (isVisible: boolean) => void;
   isVisible: boolean;
   setIsShowModal: (isShow: boolean) => void;
   isShowModal: boolean;
 };
 
 export const Modal = (props: ModalProps) => {
-  const handleClickOutside = () => {
-    if (isVisible) {
-      console.log('the modal is visible, so close it');
+  const handleCloseModal = (e: Event) => {
+    // modal is visible when the css transition is over, and isShowModal is true
+    e.preventDefault();
+    if (props.isVisible) {
       props.setIsShowModal(false);
-    } else {
-      console.log('modal is closed, do nothing here');
     }
   };
 
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  // const ref = React.useRef<HTMLInputElement>(null);
-  // const dialogRef = useRef<HTMLDivElement>(null);
-  // const isVisible = useIsVisible(dialogRef);
-  const ref = useOutsideClick(handleClickOutside);
+  const ref = useOutsideClick(handleCloseModal);
+
+  const config = { code: 'Escape' };
+  useKeyboardShortcut(handleCloseModal, config);
 
   return (
     <div id="modalContainer">
@@ -36,18 +32,14 @@ export const Modal = (props: ModalProps) => {
         className={
           'modal h-full w-full ' + (props.isShowModal ? ' modal-open' : '')
         }
-        // onTransitionEnd={() => setIsVisible(!isVisible)}
         onTransitionEnd={() => {
           if (!props.isShowModal) {
-            console.log('transition over, modeal is CLOSED');
-            setIsVisible(false);
+            props.setIsVisible(false);
           } else {
-            console.log('transition over, modal is open');
-            setIsVisible(true);
+            props.setIsVisible(true);
           }
         }}
       >
-        {/* <dialog id="my_modal_1" className={"modal modal-open"}> */}
         <form
           ref={ref}
           method="dialog"
@@ -56,7 +48,7 @@ export const Modal = (props: ModalProps) => {
         >
           <div className="flex justify-end">
             <button
-              className="btn-square btn"
+              className="btn-ghost btn-sm btn-circle btn absolute right-2 top-2"
               onClick={() => props.setIsShowModal(false)}
             >
               <svg

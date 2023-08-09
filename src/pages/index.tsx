@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { TransitionEvent } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useSession } from 'next-auth/react';
@@ -12,7 +11,6 @@ import { TopicSelector } from '~/components/TopicSelector';
 import { LoadingPage } from '~/components/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 import StatusBar from '~/components/StatusBar';
-import { FormikTest } from '~/components/FormTest';
 
 const Home: NextPage = () => {
   return (
@@ -126,7 +124,7 @@ const Content: React.FC = () => {
   const Topics = () => {
     // console.log(fetchStatus);
     if ('fetching' === fetchStatus || isTopicsLoading) {
-      console.log('topics loading');
+      // console.log('topics loading');
       return (
         <div className="flex grow">
           <LoadingPage />
@@ -135,7 +133,7 @@ const Content: React.FC = () => {
     }
 
     if (isTopicsLoading || isNotesLoading) {
-      console.log('topics or notest are loading');
+      // console.log('topics or notest are loading');
       return <div>Loading</div>;
     }
 
@@ -230,17 +228,8 @@ const Content: React.FC = () => {
   // Has the 'Add Note' button been clicked?
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
 
-  // 'isModalVisible' prop should be toggled when the transition event is 'transform'. This allows
-  // me to set the focus on the modal's input.
-  const handleShowModal = (e: TransitionEvent<HTMLElement>) => {
-    // e.preventDefault();
-    // console.log(e.propertyName);
-    // if (e.propertyName === 'transform') {
-    //   // console.log(e);
-    //   setIsModalVisible((isModalVisible) => {
-    //     return !isModalVisible;
-    //   });
-    // }
+  const handleIsModalVisible = (isVisible: boolean) => {
+    setIsModalVisible(isVisible);
   };
 
   return (
@@ -275,7 +264,7 @@ const Content: React.FC = () => {
               </div>
             )}
             <Modal
-              setIsVisible={handleShowModal}
+              setIsVisible={handleIsModalVisible}
               isVisible={isModalVisible}
               setIsShowModal={setIsShowModal}
               isShowModal={isShowModal}
