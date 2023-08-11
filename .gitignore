@@ -43,3 +43,5 @@ yarn-error.log*
 
 # just my notes.
 notes.txt
+# stash file
+stash.txt
