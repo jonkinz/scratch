@@ -1,21 +1,26 @@
-import { useRef, useEffect } from 'react';
+import type { RefObject } from 'react';
+import { useEffect } from 'react';
 
-export const useOutsideClick = (callback: (e: Event) => void) => {
-  const ref = useRef<HTMLFormElement>(null);
+type Event = MouseEvent | TouchEvent;
 
+const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
+  ref: RefObject<T>,
+  callback: (event: Event) => void
+) => {
   useEffect(() => {
-    // if (!ref.current) throw Error('divRef is not assigned');
-    const handleClick = (event: MouseEvent): void => {
+    const listener = (event: Event) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
         callback(event);
       }
     };
-    document.addEventListener('click', handleClick);
+    document.addEventListener('mousedown', listener);
+    document.addEventListener('touchstart', listener);
 
     return () => {
-      document.removeEventListener('click', handleClick);
+      document.removeEventListener('mousedown', listener);
+      document.removeEventListener('touchstart', listener);
     };
-  }, [callback]);
-
-  return ref;
+  }, [ref, callback]); // Reload only if ref or handler changes
 };
+
+export default useOnClickOutside;

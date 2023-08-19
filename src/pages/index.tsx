@@ -234,8 +234,10 @@ const Content: React.FC = () => {
 
   return (
     <>
+      {/* <FormikTest /> */}
+      {/* <FormTest /> */}
+      {/* <Basic></Basic> */}
       <div tabIndex={0}>
-        {/* <FormikTest /> */}
         {sessionData ? (
           <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
             <div id="leftOptions" className="col-span-1 px-2">

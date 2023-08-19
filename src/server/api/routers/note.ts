@@ -5,7 +5,8 @@ import { TRPCError } from '@trpc/server';
 // import { Redis } from "@upstash/redis";
 import type { Note } from '@prisma/client';
 // import * as Constants from "../../../constants"
-import * as Constants from '~/constants';
+// import * as Constants from '~/constants';
+import { NoteSchema } from '~/constants/NoteSchema';
 
 // Create a new ratelimiter, that allows 10 requests per 10 seconds
 // const ratelimit = new Ratelimit({
@@ -24,19 +25,6 @@ import * as Constants from '~/constants';
 // const NOTE_TITLE_LENGTH_MAX = 3;
 // const ERROR_MESSAGE_MIN = `Note title should be at least ${NOTE_TITLE_LENGTH_MIN} character`;
 // const ERROR_MESSAGE_MAX = `Note title should be at least ${NOTE_TITLE_LENGTH_MAX} characters`;
-
-const NoteSchema = z.object({
-  title: z
-    .string()
-    .min(Constants.NOTE_TITLE_LENGTH_MIN, {
-      message: Constants.ERROR_MESSAGE_MIN,
-    })
-    .max(Constants.NOTE_TITLE_LENGTH_MAX, {
-      message: Constants.ERROR_MESSAGE_MAX,
-    }),
-  content: z.string(),
-  topicId: z.string(),
-});
 
 export const noteRouter = createTRPCRouter({
   delete: protectedProcedure

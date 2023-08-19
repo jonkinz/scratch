@@ -1,10 +1,10 @@
-import { useOutsideClick } from '~/hooks/useClickOutside';
+import useOnClickOutside from '~/hooks/useClickOutside';
 import useKeyboardShortcut from '~/hooks/useKeyboardShortcut';
+import { useRef } from 'react';
 import '../styles/modal.module.css';
 
 type ModalProps = {
   children: React.ReactNode; //👈 children prop typr
-  // setIsVisible: (e: TransitionEvent<HTMLElement>) => void;
   setIsVisible: (isVisible: boolean) => void;
   isVisible: boolean;
   setIsShowModal: (isShow: boolean) => void;
@@ -20,8 +20,8 @@ export const Modal = (props: ModalProps) => {
     }
   };
 
-  const ref = useOutsideClick(handleCloseModal);
-
+  const ref = useRef<HTMLDivElement>(null);
+  useOnClickOutside(ref, handleCloseModal);
   const config = { code: 'Escape' };
   useKeyboardShortcut(handleCloseModal, config);
 
@@ -40,12 +40,7 @@ export const Modal = (props: ModalProps) => {
           }
         }}
       >
-        <form
-          ref={ref}
-          method="dialog"
-          className="modal-box w-11/12 max-w-5xl"
-          id="modalBoxForm"
-        >
+        <div ref={ref} className="modal-box w-11/12 max-w-5xl" id="modalBox">
           <div className="flex justify-end">
             <button
               className="btn-ghost btn-sm btn-circle btn absolute right-2 top-2"
@@ -68,7 +63,7 @@ export const Modal = (props: ModalProps) => {
             </button>
           </div>
           {props.children}
-        </form>
+        </div>
       </dialog>
     </div>
   );
