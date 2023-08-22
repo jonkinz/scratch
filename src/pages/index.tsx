@@ -35,11 +35,13 @@ export default Home;
 // Chirp tutorial uses
 type Topic = RouterOutputs['topic']['getAll'][number];
 // daniel bark video
+type Note = RouterOutputs['note']['getAll'][0];
 
 const Content: React.FC = () => {
   const { data: sessionData } = useSession();
 
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const {
     data: topics,
@@ -91,24 +93,42 @@ const Content: React.FC = () => {
     }
   );
 
-  const getNoteById = api.note.getById.useQuery('clhnuouv60001ml082drg4grb', {
-    enabled: sessionData?.user !== undefined,
-  });
+  // const { getNoteByid } = api.note.getById.useQuery({
+  //   note: note.id,
+  // }).data;
 
-  // const createNote = api.note.create.useMutation({
-  const { mutate, isLoading: isCreatingNote } = api.note.create.useMutation({
-    onSuccess: () => {
-      void refetchNotes();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.title;
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0]);
-      } else {
-        toast.error('Failed to create note! Please try again later.');
-      }
-    },
-  });
+  const { mutate: createNote, isLoading: isCreatingNote } =
+    api.note.create.useMutation({
+      onSuccess: (data) => {
+        toast.success('note created!');
+        void refetchNotes();
+        setSelectedNote(selectedNote ?? data ?? null);
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.title;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error('Failed to create note! Please try again later.');
+        }
+      },
+    });
+
+  const { mutate: updateNote, isLoading: isUpdatingNote } =
+    api.note.update.useMutation({
+      onSuccess: () => {
+        toast.success('note updated!');
+        void refetchNotes();
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.title;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error('Failed to create note! Please try again later.');
+        }
+      },
+    });
 
   const deleteNote = api.note.delete.useMutation({
     onSuccess: () => {
@@ -122,9 +142,7 @@ const Content: React.FC = () => {
   };
 
   const Topics = () => {
-    // console.log(fetchStatus);
     if ('fetching' === fetchStatus || isTopicsLoading) {
-      // console.log('topics loading');
       return (
         <div className="flex grow">
           <LoadingPage />
@@ -133,7 +151,6 @@ const Content: React.FC = () => {
     }
 
     if (isTopicsLoading || isNotesLoading) {
-      // console.log('topics or notest are loading');
       return <div>Loading</div>;
     }
 
@@ -154,7 +171,7 @@ const Content: React.FC = () => {
                   onClick={() => {
                     deleteTopic.mutate({ id: topic.id });
                   }}
-                  className="btn-warning btn-xs btn px-5"
+                  className="btn btn-warning btn-xs px-5"
                 >
                   delete
                 </button>
@@ -196,7 +213,7 @@ const Content: React.FC = () => {
         type="text"
         // ref={ref}
         placeholder="New Topic"
-        className="input-bordered input input-sm w-full"
+        className="input input-bordered input-sm w-full"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             createTopic.mutate({
@@ -216,7 +233,6 @@ const Content: React.FC = () => {
           <div className="max-w-md">
             <h1 className="text-5xl font-bold">Welcome to Notetaker</h1>
             <p className="py-6">Please login to see your notes</p>
-            {/* <button className="btn btn-primary">Get Started</button> */}
           </div>
         </div>
       </div>
@@ -234,9 +250,6 @@ const Content: React.FC = () => {
 
   return (
     <>
-      {/* <FormikTest /> */}
-      {/* <FormTest /> */}
-      {/* <Basic></Basic> */}
       <div tabIndex={0}>
         {sessionData ? (
           <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
@@ -250,6 +263,9 @@ const Content: React.FC = () => {
                 <button
                   className="btn"
                   onClick={(): void => {
+                    console.log(selectedNote);
+                    setSelectedNote(null);
+                    console.log(selectedNote);
                     setIsShowModal(true);
                   }}
                 >
@@ -274,11 +290,21 @@ const Content: React.FC = () => {
               <NoteEditor
                 isOpen={isModalVisible}
                 onSave={({ title, content }) => {
-                  mutate({
-                    title,
-                    content,
-                    topicId: selectedTopic?.id ?? '',
-                  });
+                  if (selectedNote) {
+                    // update note if there is a selected note
+                    updateNote({
+                      id: selectedNote.id,
+                      title,
+                      content,
+                      topicId: selectedTopic?.id ?? '',
+                    });
+                  } else {
+                    createNote({
+                      title,
+                      content,
+                      topicId: selectedTopic?.id ?? '',
+                    });
+                  }
                 }}
               />
             </Modal>
