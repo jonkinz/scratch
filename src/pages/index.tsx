@@ -151,14 +151,15 @@ const Content: React.FC = () => {
     }
 
     if (isTopicsLoading || isNotesLoading) {
+      console.log('topics loadig');
       return <div>Loading</div>;
     }
 
     return (
       <ul className="menu rounded-box w-56 bg-base-100 p-2">
         {topics?.map((topic) => (
-          <li key={topic.id}>
-            <div className="grid grid-cols-5 gap-3">
+          <li key={topic.id} style={{ height: '40px' }}>
+            <div id="topicDiv" className="grid grid-cols-5 gap-3">
               <TopicSelector
                 handleClick={(event, topic) => {
                   handleClick(event, topic);
@@ -255,7 +256,7 @@ const Content: React.FC = () => {
           <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
             <div id="leftOptions" className="col-span-1 px-2">
               <CreateTopicButton />
-              <div className="divider"></div>
+              {/* <div className="divider"></div> */}
               <Topics />
             </div>
             <div id="rightDiv" className="col-span-1">
@@ -263,9 +264,7 @@ const Content: React.FC = () => {
                 <button
                   className="btn"
                   onClick={(): void => {
-                    console.log(selectedNote);
                     setSelectedNote(null);
-                    console.log(selectedNote);
                     setIsShowModal(true);
                   }}
                 >
