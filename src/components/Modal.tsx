@@ -2,6 +2,7 @@ import useOnClickOutside from '~/hooks/useClickOutside';
 import useKeyboardShortcut from '~/hooks/useKeyboardShortcut';
 import { useRef } from 'react';
 import '../styles/modal.module.css';
+import { useOutsideClick } from '~/hooks/useClickOutsideOld';
 
 type ModalProps = {
   children: React.ReactNode; //👈 children prop typr
@@ -16,12 +17,16 @@ export const Modal = (props: ModalProps) => {
     // modal is visible when the css transition is over, and isShowModal is true
     e.preventDefault();
     if (props.isVisible) {
-      props.setIsShowModal(false);
+      setIsShowModal(false);
     }
   };
 
+  const { isVisible, setIsVisible, setIsShowModal, isShowModal } = props;
+
   const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, handleCloseModal);
+  useOnClickOutside(isVisible, ref, handleCloseModal);
+
+  // const ref = useOutsideClick(handleCloseModal);
   const config = { code: 'Escape' };
   useKeyboardShortcut(handleCloseModal, config);
 
@@ -29,22 +34,20 @@ export const Modal = (props: ModalProps) => {
     <div id="modalContainer">
       <dialog
         id="my_modal_1"
-        className={
-          'modal h-full w-full ' + (props.isShowModal ? ' modal-open' : '')
-        }
+        className={'modal h-full w-full ' + (isShowModal ? ' modal-open' : '')}
         onTransitionEnd={() => {
-          if (!props.isShowModal) {
-            props.setIsVisible(false);
+          if (!isShowModal) {
+            setIsVisible(false);
           } else {
-            props.setIsVisible(true);
+            setIsVisible(true);
           }
         }}
       >
         <div ref={ref} className="modal-box w-11/12 max-w-5xl" id="modalBox">
           <div className="flex justify-end">
             <button
-              className="btn-ghost btn-sm btn-circle btn absolute right-2 top-2"
-              onClick={() => props.setIsShowModal(false)}
+              className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
+              onClick={() => setIsShowModal(false)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
