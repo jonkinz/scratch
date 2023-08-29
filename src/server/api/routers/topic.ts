@@ -43,8 +43,8 @@ export const topicRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    // A topic title should be a string of at least one character, but no more than 100 chars.
-    .input(z.object({ title: z.string().min(1).max(100) }))
+    // A topic name should be a string of at least one character, but no more than 100 chars.
+    .input(z.object({ name: z.string().min(1).max(100) }))
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
       const { success } = await ratelimit.limit(authorId);
@@ -52,7 +52,7 @@ export const topicRouter = createTRPCRouter({
 
       const topic = await ctx.prisma.topic.create({
         data: {
-          title: input.title,
+          name: input.name,
           userId: ctx.session.user.id,
         },
       });

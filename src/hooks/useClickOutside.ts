@@ -14,7 +14,6 @@ const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
     }
     const listener = (event: Event) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        console.log('test2');
         callback(event);
       }
     };

@@ -150,16 +150,11 @@ const Content: React.FC = () => {
       );
     }
 
-    if (isTopicsLoading || isNotesLoading) {
-      console.log('topics loadig');
-      return <div>Loading</div>;
-    }
-
     return (
       <ul className="menu rounded-box w-56 bg-base-100 p-2">
         {topics?.map((topic) => (
           <li key={topic.id} style={{ height: '40px' }}>
-            <div id="topicDiv" className="grid grid-cols-5 gap-3">
+            <div id="topicDiv" className="">
               <TopicSelector
                 handleClick={(event, topic) => {
                   handleClick(event, topic);
@@ -167,7 +162,7 @@ const Content: React.FC = () => {
                 topic={topic}
                 isSelected={topic.id === selectedTopic?.id}
               />
-              <div className="col-span-1">
+              <div className="">
                 <button
                   onClick={() => {
                     deleteTopic.mutate({ id: topic.id });
@@ -201,7 +196,7 @@ const Content: React.FC = () => {
         ) : (
           <>
             <span>You don&apos;t have any notes on </span>
-            <span className="font-bold">{selectedTopic?.title}</span>
+            <span className="font-bold">{selectedTopic?.name}</span>
           </>
         )}
       </div>
@@ -218,7 +213,7 @@ const Content: React.FC = () => {
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             createTopic.mutate({
-              title: e.currentTarget.value,
+              name: e.currentTarget.value,
             });
             e.currentTarget.value = '';
           }
@@ -253,28 +248,28 @@ const Content: React.FC = () => {
     <>
       <div tabIndex={0}>
         {sessionData ? (
-          <div className="mx-5 mt-5 grid grid-cols-2 gap-2">
-            <div id="leftOptions" className="col-span-1 px-2">
+          <div className="mx-5 mt-5 grid grid-cols-10 gap-2">
+            <div id="leftOptions" className="col-span-4 px-2">
               <CreateTopicButton />
-              {/* <div className="divider"></div> */}
               <Topics />
             </div>
-            <div id="rightDiv" className="col-span-1">
-              {selectedTopic && (
-                <button
-                  className="btn"
-                  onClick={(): void => {
-                    setSelectedNote(null);
-                    setIsShowModal(true);
-                  }}
-                >
-                  Add Note
-                </button>
-              )}
+            {selectedTopic && (
+              <div id="rightDiv" className="col-span-6">
+                {selectedTopic && (
+                  <button
+                    className="btn"
+                    onClick={(): void => {
+                      setSelectedNote(null);
+                      setIsShowModal(true);
+                    }}
+                  >
+                    Add Note
+                  </button>
+                )}
 
-              <Notes />
-            </div>
-
+                {selectedTopic && <Notes />}
+              </div>
+            )}
             {isCreatingNote && (
               <div className="flex items-center justify-center">
                 <LoadingPage />
@@ -287,21 +282,24 @@ const Content: React.FC = () => {
               isShowModal={isShowModal}
             >
               <NoteEditor
+                topics={topics}
                 isOpen={isModalVisible}
-                onSave={({ title, content }) => {
+                onSave={({ topic, title, content }) => {
                   if (selectedNote) {
                     // update note if there is a selected note
                     updateNote({
                       id: selectedNote.id,
                       title,
                       content,
-                      topicId: selectedTopic?.id ?? '',
+                      // topicId: selectedTopic?.id ?? '',
+                      topicId: topic ?? '',
                     });
                   } else {
                     createNote({
                       title,
                       content,
-                      topicId: selectedTopic?.id ?? '',
+                      // topicId: selectedTopic?.id ?? '',
+                      topicId: topic ?? '',
                     });
                   }
                 }}

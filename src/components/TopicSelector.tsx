@@ -25,7 +25,7 @@ export const TopicSelector = ({
       href="#"
       onClick={(event) => handleClick(event, topic)}
     >
-      {topic.title}
+      {topic.name}
     </a>
   );
 };

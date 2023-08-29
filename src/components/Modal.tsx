@@ -2,7 +2,9 @@ import useOnClickOutside from '~/hooks/useClickOutside';
 import useKeyboardShortcut from '~/hooks/useKeyboardShortcut';
 import { useRef } from 'react';
 import '../styles/modal.module.css';
-import { useOutsideClick } from '~/hooks/useClickOutsideOld';
+// import { useOutsideClick } from '~/hooks/useClickOutsideOld';
+import type { MouseEvent } from 'react';
+// import { useState, MouseEventHandler } from 'react';
 
 type ModalProps = {
   children: React.ReactNode; //👈 children prop typr
@@ -12,10 +14,12 @@ type ModalProps = {
   isShowModal: boolean;
 };
 
+// type Event = MouseEvent | TouchEvent;
 export const Modal = (props: ModalProps) => {
-  const handleCloseModal = (e: Event) => {
+  const handleCloseModal = (e: Event | MouseEvent) => {
     // modal is visible when the css transition is over, and isShowModal is true
     e.preventDefault();
+    console.log('foo');
     if (props.isVisible) {
       setIsShowModal(false);
     }
@@ -43,11 +47,16 @@ export const Modal = (props: ModalProps) => {
           }
         }}
       >
-        <div ref={ref} className="modal-box w-11/12 max-w-5xl" id="modalBox">
+        <div
+          ref={ref}
+          className="no-scrollbar modal-box w-11/12 max-w-5xl "
+          id="modalBox"
+        >
           <div className="flex justify-end">
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              onClick={() => setIsShowModal(false)}
+              // onClick={() => setIsShowModal(false)}
+              onClick={(e) => handleCloseModal(e)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

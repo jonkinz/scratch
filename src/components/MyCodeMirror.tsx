@@ -54,7 +54,7 @@ function MyCodeMirror(props: CodeMirrorProps) {
       // extensions={[javascript({ jsx: true })]}
       onChange={onChange}
       // onChange={props.setNote}
-      width="500px"
+      // width="500px"
       height="30vh"
       minWidth="100%"
       minHeight="30vh"
