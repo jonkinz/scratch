@@ -34,7 +34,7 @@ export const NoteCard = ({
           </span>
           <div className="collapse-content">
             <article className="prose lg:prose-xl">
-              <div className="">{!topic?.title}</div>
+              <div className="">{!topic?.name}</div>
               <ReactMarkdown>{note.content}</ReactMarkdown>
             </article>
           </div>
