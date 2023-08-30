@@ -25,7 +25,9 @@ export const NoteEditor = (props: EditorProps) => {
   const [note, setNote] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const topics = props.topics;
-
+  const defaultTopicId = topics && topics[0] ? topics[0].id : '';
+  console.log(defaultTopicId);
+  // defaultValue={topics && topics[0] ? topics[0].id : ''}
   const formik = useFormik({
     initialValues: {
       topic: '',
@@ -38,7 +40,7 @@ export const NoteEditor = (props: EditorProps) => {
       saveNote();
     },
   });
-
+  formik.values.topic = defaultTopicId;
   const saveNote = () => {
     if (!formik.isValid) {
       return;
@@ -92,6 +94,7 @@ export const NoteEditor = (props: EditorProps) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.topic}
+                    // defaultValue={topics && topics[0] ? topics[0].id : ''}
                   >
                     <option disabled selected>
                       Choose a topic
