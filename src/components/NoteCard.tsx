@@ -10,9 +10,11 @@ type Note = RouterOutputs['note']['getAll'][0];
 export const NoteCard = ({
   note,
   onDelete,
+  editNote,
 }: {
   note: Note;
   onDelete: () => void;
+  editNote: (note: Note) => void;
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const topic = api.topic.getTopicById.useQuery({
@@ -39,8 +41,15 @@ export const NoteCard = ({
             </article>
           </div>
         </div>
-        <div className="card-actions mx-2 flex justify-end">
-          <button className="btn btn-warning btn-xs px-5" onClick={onDelete}>
+
+        <div className="card-actions mx-2 flex justify-between">
+          <button
+            className="btn btn-warning btn-xs  px-5"
+            onClick={() => editNote(note)}
+          >
+            Edit Note
+          </button>
+          <button className="btn btn-warning btn-xs  px-5" onClick={onDelete}>
             Delete
           </button>
         </div>

@@ -42,7 +42,6 @@ function MyCodeMirror(props: CodeMirrorProps) {
   const onChange = React.useCallback(
     (value: string, viewUpdate: ViewUpdate) => {
       console.log(viewUpdate);
-      console.log('value:', value);
       props.setNote(value);
     },
     [props]

@@ -190,6 +190,10 @@ const Content: React.FC = () => {
                 onDelete={() => {
                   deleteNote.mutate({ id: note.id });
                 }}
+                editNote={(note) => {
+                  setSelectedNote(note);
+                  setIsShowModal(true);
+                }}
               />
             </div>
           ))
@@ -284,6 +288,7 @@ const Content: React.FC = () => {
               <NoteEditor
                 topics={topics}
                 isOpen={isModalVisible}
+                note={selectedNote}
                 onSave={({ topic, title, content }) => {
                   if (selectedNote) {
                     // update note if there is a selected note

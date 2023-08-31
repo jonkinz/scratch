@@ -6,6 +6,7 @@ import MyCodeMirror from './MyCodeMirror';
 // import * as Constants from '~/constants';
 import { type RouterOutputs } from '../utils/api';
 type Topic = RouterOutputs['topic']['getAll'][number];
+type Note = RouterOutputs['note']['getAll'][number];
 import { NoteValidateSchema } from '~/constants/NoteValidateSchema';
 import { toFormikValidate } from 'zod-formik-adapter';
 
@@ -17,30 +18,40 @@ import { toFormikValidate } from 'zod-formik-adapter';
 
 type EditorProps = {
   topics: Topic[] | undefined;
+  note: Note | null;
   onSave: (note: { topic: string; title: string; content: string }) => void;
   isOpen: boolean;
 };
 
 export const NoteEditor = (props: EditorProps) => {
+  // Set up initial values for formik and the code mirror editor.
+  const topics = props.topics;
+  let title = '';
+  let noteString = '';
+  let defaultTopicId = topics && topics[0] ? topics[0].id : '';
+  if (props.note) {
+    noteString = props.note.content;
+    title = props.note.title;
+    defaultTopicId = props.note.topicId;
+  }
   const [note, setNote] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const topics = props.topics;
-  const defaultTopicId = topics && topics[0] ? topics[0].id : '';
-  console.log(defaultTopicId);
-  // defaultValue={topics && topics[0] ? topics[0].id : ''}
+
   const formik = useFormik({
     initialValues: {
-      topic: '',
-      title: '',
+      topic: defaultTopicId,
+      title: title,
       note: '',
     },
     validate: toFormikValidate(NoteValidateSchema),
+    enableReinitialize: true,
     // validationSchema: TitleSchema,
     onSubmit: () => {
       saveNote();
     },
   });
-  formik.values.topic = defaultTopicId;
+
+  // formik.values.topic = defaultTopicId;
   const saveNote = () => {
     if (!formik.isValid) {
       return;
@@ -58,11 +69,13 @@ export const NoteEditor = (props: EditorProps) => {
   useEffect(() => {
     if (props.isOpen) {
       inputRef.current && inputRef.current.focus();
+      setNote(noteString);
     } else {
       //TODO: have to clear the form when it's closed. formik can't be a dependency here, you get an infinite loop of rendering.
-      formik.resetForm();
+      // formik.resetForm();
+      setNote('');
     }
-  }, [props.isOpen]);
+  }, [props.isOpen, noteString]);
 
   //callback function for ctrl+s to save feature
   const handleSave = (e: KeyboardEvent) => {
