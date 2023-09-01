@@ -1,8 +1,10 @@
-import React from 'react'; // we need this to make JSX compile
+// import React from 'react'; // we need this to make JSX compile
 
-import { api, type RouterOutputs } from '../utils/api';
+import { type RouterOutputs } from '../utils/api';
 
 type Topic = RouterOutputs['topic']['getAll'][0];
+import { NOTE_CARD_TOPIC_LENGTH } from '~/constants';
+import { truncate } from '~/utils/utils';
 
 interface TopicSelectorProps {
   handleClick: (
@@ -18,6 +20,7 @@ export const TopicSelector = ({
   topic,
   isSelected,
 }: TopicSelectorProps) => {
+  const truncTopic = truncate(topic.name, NOTE_CARD_TOPIC_LENGTH);
   return (
     <a
       id="topicAnchor"
@@ -25,7 +28,7 @@ export const TopicSelector = ({
       href="#"
       onClick={(event) => handleClick(event, topic)}
     >
-      {topic.name}
+      {truncTopic}
     </a>
   );
 };

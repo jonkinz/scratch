@@ -11,6 +11,11 @@ import { TopicSelector } from '~/components/TopicSelector';
 import { LoadingPage } from '~/components/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 import StatusBar from '~/components/StatusBar';
+import {
+  NOTE_CARD_CONTENT_LENGTH,
+  NOTE_CARD_TOPIC_LENGTH,
+  NOTE_CARD_TITLE_LENGTH,
+} from '~/constants';
 
 const Home: NextPage = () => {
   return (

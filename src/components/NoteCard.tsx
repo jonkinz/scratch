@@ -4,6 +4,12 @@ import { type RouterOutputs } from '../utils/api';
 import { api } from '../utils/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import {
+  NOTE_CARD_CONTENT_LENGTH,
+  NOTE_CARD_TOPIC_LENGTH,
+  NOTE_CARD_TITLE_LENGTH,
+} from '~/constants';
+import { truncate } from '~/utils/utils';
 dayjs.extend(relativeTime);
 type Note = RouterOutputs['note']['getAll'][0];
 
@@ -20,7 +26,10 @@ export const NoteCard = ({
   const topic = api.topic.getTopicById.useQuery({
     topicId: note.topicId,
   }).data;
-
+  const topicName = topic?.name ?? '';
+  const truncTitle = truncate(note.title, NOTE_CARD_TITLE_LENGTH);
+  const truncTopic = truncate(topicName, NOTE_CARD_TOPIC_LENGTH);
+  const truncContent = truncate(note.content, NOTE_CARD_CONTENT_LENGTH);
   return (
     <div className="card mt-5 border border-gray-200 bg-base-100 shadow-xl">
       <div className="card-body m-0 p-3">
@@ -30,14 +39,18 @@ export const NoteCard = ({
           } collapse`}
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="collapse-title text-xl font-bold">{note.title}</div>
+          <div className="collapse-title flex justify-between text-xl font-bold">
+            <div>{truncTitle}</div>
+            <div>{truncTopic}</div>
+          </div>
+          {/* <div className=" text-xl font-bold">{topic?.name}</div> */}
           <span className="font-thin">
             {` · ${dayjs(note.createdAt).fromNow()}`}
           </span>
           <div className="collapse-content">
             <article className="prose lg:prose-xl">
-              <div className="">{!topic?.name}</div>
-              <ReactMarkdown>{note.content}</ReactMarkdown>
+              {/* <div className="">{!topic?.name}</div> */}
+              <ReactMarkdown>{truncContent}</ReactMarkdown>
             </article>
           </div>
         </div>
