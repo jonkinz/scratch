@@ -35,6 +35,9 @@ export const topicRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      // const authorId = ctx.session.user.id;
+      // const { success } = await ratelimit.limit(authorId);
+      // if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
       return ctx.prisma.topic.delete({
         where: {
           id: input.id,

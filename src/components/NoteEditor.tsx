@@ -9,7 +9,7 @@ type Topic = RouterOutputs['topic']['getAll'][number];
 type Note = RouterOutputs['note']['getAll'][number];
 import { NoteValidateSchema } from '~/constants/NoteValidateSchema';
 import { toFormikValidate } from 'zod-formik-adapter';
-
+import { CreateTopicInput } from './CreateTopicInput';
 // const TitleSchema = Yup.object().shape({
 //   title: Yup.string()
 //     .min(Constants.NOTE_TITLE_LENGTH_MIN, Constants.ERROR_MESSAGE_MIN)
@@ -19,7 +19,12 @@ import { toFormikValidate } from 'zod-formik-adapter';
 type EditorProps = {
   topics: Topic[] | undefined;
   note: Note | null;
-  onSave: (note: { topic: string; title: string; content: string }) => void;
+  onSave: (note: {
+    newTopic: string;
+    topic: string;
+    title: string;
+    content: string;
+  }) => void;
   isOpen: boolean;
 };
 
@@ -39,6 +44,7 @@ export const NoteEditor = (props: EditorProps) => {
 
   const formik = useFormik({
     initialValues: {
+      newTopic: '',
       topic: defaultTopicId,
       title: title,
       note: '',
@@ -60,6 +66,7 @@ export const NoteEditor = (props: EditorProps) => {
       return;
     }
     props.onSave({
+      newTopic: formik.values.newTopic,
       topic: formik.values.topic,
       title: formik.values.title,
       content: note,
@@ -100,27 +107,45 @@ export const NoteEditor = (props: EditorProps) => {
             <div className="form-control w-full">
               <div className="grid grid-cols-10 gap-4">
                 <div id="leftInput" className="col-span-3">
-                  <select
-                    className={`select select-bordered w-full max-w-xs`}
-                    name="topic"
-                    id="topic"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.topic}
-                    // defaultValue={topics && topics[0] ? topics[0].id : ''}
-                  >
-                    <option disabled selected>
-                      Choose a topic
-                    </option>
-                    {topics &&
-                      topics.map((topic) => {
-                        return (
-                          <option key={topic.id} value={topic.id}>
-                            {topic.name}
-                          </option>
-                        );
-                      })}
-                  </select>
+                  {topics && topics.length > 0 ? (
+                    <select
+                      className={`select select-bordered w-full max-w-xs`}
+                      name="topic"
+                      id="topic"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.topic}
+                      // defaultValue={topics && topics[0] ? topics[0].id : ''}
+                    >
+                      <option disabled selected>
+                        Choose a topic
+                      </option>
+                      {topics &&
+                        topics.map((topic) => {
+                          return (
+                            <option key={topic.id} value={topic.id}>
+                              {topic.name}
+                            </option>
+                          );
+                        })}
+                    </select>
+                  ) : (
+                    <input
+                      ref={inputRef}
+                      name="newTopic"
+                      id="newTopic"
+                      type="text"
+                      placeholder="Note topic"
+                      className={`input input-bordered w-full ${
+                        formik.touched.newTopic && formik.errors.newTopic
+                          ? 'input-error'
+                          : 'input-primary'
+                      }`}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.newTopic}
+                    />
+                  )}
                 </div>
                 <div className="col-span-7">
                   <input
