@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
   return (
-    <Html data-theme="summer">
+    <Html className="sm:scroll-smooth">
       <Head />
       <body>
         <Main />
