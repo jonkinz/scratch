@@ -12,5 +12,4 @@ export const NoteSchema = z.object({
     }),
   content: z.string(),
   topicId: z.string(),
-  topicName: z.string(),
 });
