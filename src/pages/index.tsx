@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { api, type RouterOutputs } from '../utils/api';
 import { Header } from '~/components/Header';
@@ -20,114 +19,16 @@ const Home: NextPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Header />
-      <main className="mx-auto max-w-4xl ">
+      <main className="min-h-screen bg-slate-50">
         <section
-          id="hero"
-          className="mb-12 flex scroll-mt-40 flex-col-reverse items-center justify-center gap-8 p-6 sm:flex-row"
+          data-theme="summer"
+          id="appContainer"
+          className="container m-auto h-screen"
         >
-          <article className="sm:w-1/2">
-            <h2 className="max-w-md text-center text-4xl font-bold text-slate-900 dark:text-white sm:text-left sm:text-5xl">
-              We Boldly go{' '}
-              <span className="text-indigo-700 dark:text-indigo-300">
-                Where No Rocket
-              </span>{' '}
-              Has Gone Before...
-            </h2>
-            <p className="mt-4 max-w-md text-center text-2xl text-slate-700 dark:text-slate-400 sm:text-left">
-              We're building rockets for the next centry today. From the moon to
-              Mars, Jupiter and beyond...
-            </p>
-            <p className="mt-4 max-w-md text-center text-2xl text-slate-700 dark:text-slate-400 sm:text-left">
-              Think Acme Rockets.
-            </p>
-          </article>
-          {/* <img src="./img/blueBook.png" alt="Rocket Dab" className="w-1/2" /> */}
-          <Image
-            src="/img/rocketdab.png"
-            alt="Rocket Dab"
-            width={400}
-            height={400}
-            className="w-1/2"
-          />
+          <Header />
           {/* <qtatusBar /> */}
-          {/* <Content /> */}
+          <Content />
           <footer className="sticky bottom-0 h-1 bg-white" />
-        </section>
-        <hr className="mx-auto w-1/2 bg-black dark:bg-white" />
-        <section id="rockets" className="my-12 scroll-mt-20 p-6">
-          <h2 className="mb-6 text-center text-4xl font-bold text-slate-900 dark:text-white sm:text-5xl">
-            Our Rockets
-          </h2>
-          <ul className="mx-auto my-12 flex list-none flex-col items-center gap-8 sm:flex-row">
-            <li className="flex w-2/3 flex-col items-center rounded-3xl border border-solid border-slate-900 bg-white px-2 py-6 shadow-xl dark:border-gray-100 dark:bg-black sm:w-5/6">
-              <Image
-                width={100}
-                height={100}
-                className="mb-6 w-1/2"
-                src="/img/rocketride.png"
-                alt="Adventure"
-              ></Image>
-              <h3 className="text-center text-3xl text-slate-900 dark:text-white">
-                Explorer
-              </h3>
-              <p className="mt-2 hidden text-center text-3xl text-slate-500 dark:text-slate-400 dark:text-white sm:block">
-                $
-              </p>
-              <p className="mt-2 text-center text-2xl text-slate-500 dark:text-slate-400 dark:text-white sm:hidden">
-                Exploration
-              </p>
-            </li>
-            <li className="flex w-2/3 flex-col items-center rounded-3xl border border-solid border-slate-900 bg-white px-2 py-6 shadow-xl dark:border-gray-100 dark:bg-black sm:w-5/6">
-              <Image
-                width={100}
-                height={100}
-                className="mb-6 w-1/2"
-                src="/img/rocketman.png"
-                alt=""
-              ></Image>
-              <h3 className="text-center text-3xl text-slate-900 dark:text-white">
-                Adventurer
-              </h3>
-              <p className="mt-2 hidden text-center text-3xl text-slate-500 dark:text-slate-400 dark:text-white sm:block">
-                $$
-              </p>
-              <p className="mt-2 text-center text-2xl text-slate-500 dark:text-slate-400 dark:text-white sm:hidden">
-                Affordable Exploration
-              </p>
-            </li>
-            <li className="flex w-2/3 flex-col items-center rounded-3xl border border-solid border-slate-900 bg-white px-2 py-6 shadow-xl dark:border-gray-100 dark:bg-black sm:w-5/6">
-              <Image
-                width={100}
-                height={100}
-                className="mb-6 w-1/2"
-                src="/img/rocketlaunch.png"
-                alt="Infinity"
-              ></Image>
-              <h3 className="text-center text-3xl text-slate-900 dark:text-white">
-                Infinity
-              </h3>
-              <p className="mt-2 hidden text-center text-3xl text-slate-500 dark:text-slate-400 dark:text-white sm:block">
-                $$$
-              </p>
-              <p className="mt-2 text-center text-2xl text-slate-500 dark:text-slate-400 dark:text-white sm:hidden">
-                Luxury Starship
-              </p>
-            </li>
-          </ul>
-        </section>
-
-        <hr className="mx-auto w-1/2 bg-black dark:bg-white" />
-        <section id="testimonials" className="my-12 p-6">
-          <h2 className="mb-6 text-center text-4xl font-bold text-slate-900 dark:text-white sm:text-5xl">
-            Testimonials
-          </h2>
-        </section>
-        <hr className="mx-auto w-1/2 bg-black dark:bg-white" />
-        <section id="contact" className="my-12 p-6">
-          <h2 className="mb-6 text-center text-4xl font-bold text-slate-900 dark:text-white sm:text-5xl">
-            Contact Us
-          </h2>
         </section>
       </main>
     </>
@@ -153,6 +54,7 @@ const Content: React.FC = () => {
     refetch: refetchTopics,
     isLoading: isTopicsLoading,
     status,
+    fetchStatus,
   } = api.topic.getAll.useQuery(
     undefined, // no input
     {
