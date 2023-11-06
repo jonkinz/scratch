@@ -9,7 +9,7 @@ type Topic = RouterOutputs['topic']['getAll'][number];
 type Note = RouterOutputs['note']['getAll'][number];
 import { NoteValidateSchema } from '~/constants/NoteValidateSchema';
 import { toFormikValidate } from 'zod-formik-adapter';
-// import { CreateTopicInput } from './CreateTopicInput';
+import { CreateTopicInput } from './CreateTopicInput';
 // const TitleSchema = Yup.object().shape({
 //   title: Yup.string()
 //     .min(Constants.NOTE_TITLE_LENGTH_MIN, Constants.ERROR_MESSAGE_MIN)

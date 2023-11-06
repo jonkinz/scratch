@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { NoteSchema } from '~/constants/NoteSchema';
 import { UpdateNoteSchema } from '~/constants/UpdateNoteSchema';
-import { createTopic } from './topic';
-import { rateLimiter } from './helpers';
+import { topicRouter } from './topic';
 
 export const noteRouter = createTRPCRouter({
   delete: protectedProcedure
@@ -22,15 +21,17 @@ export const noteRouter = createTRPCRouter({
       NoteSchema
     )
     .mutation(async ({ ctx, input }) => {
-      // await rateLimiter(ctx.session.user.id);
-
-      // if we are creating a new topic for our note, create it, and update the topic id on the input
+      // const authorId = ctx.session.user.id;
+      // const { success } = await ratelimit.limit(authorId);
+      // if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
       if (input.topicName) {
-        const topic = await createTopic({
-          prisma: ctx.prisma,
-          userId: ctx.session.user.id,
-          topicName: input.topicName,
+        const topic = await ctx.prisma.topic.create({
+          data: {
+            name: input.topicName,
+            userId: ctx.session.user.id,
+          },
         });
+
         input.topicId = topic.id;
       }
       return ctx.prisma.note.create({
@@ -46,7 +47,6 @@ export const noteRouter = createTRPCRouter({
     .input(UpdateNoteSchema)
     .mutation(async ({ ctx, input }) => {
       // Update one Note
-      await rateLimiter(ctx.session.user.id);
       return ctx.prisma.note.update({
         where: {
           // ... provide filter here
@@ -64,7 +64,6 @@ export const noteRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(z.object({ topicId: z.string() }))
     .query(({ ctx, input }) => {
-      // await rateLimiter(ctx.session.user.id);
       return ctx.prisma.note.findMany({
         where: {
           topicId: input.topicId,
@@ -78,8 +77,7 @@ export const noteRouter = createTRPCRouter({
 
   getTopicById: protectedProcedure
     .input(z.object({ noteId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      await rateLimiter(ctx.session.user.id);
+    .query(({ ctx, input }) => {
       return ctx.prisma.note.findUnique({
         where: {
           id: input.noteId,
