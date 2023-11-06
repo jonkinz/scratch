@@ -11,12 +11,6 @@ import { Modal } from '~/components/Modal';
 import { TopicSelector } from '~/components/TopicSelector';
 import { LoadingPage } from '~/components/LoadingSpinner';
 import { toast } from 'react-hot-toast';
-import StatusBar from '~/components/StatusBar';
-import {
-  NOTE_CARD_CONTENT_LENGTH,
-  NOTE_CARD_TOPIC_LENGTH,
-  NOTE_CARD_TITLE_LENGTH,
-} from '~/constants';
 
 const Home: NextPage = () => {
   return (
@@ -139,7 +133,7 @@ const Home: NextPage = () => {
 =======
       <main>
         <Header />
-        <StatusBar />
+        {/* <qtatusBar /> */}
         <Content />
 >>>>>>> parent of bf38df7... Starting work on this again, looking at re-doing the css, using a YT tailwind tutorial from D.Gray.
       </main>
@@ -176,22 +170,26 @@ const Content: React.FC = () => {
     }
   );
 
-  const createTopic = api.topic.create.useMutation({
-    onSuccess: () => {
-      void refetchTopics();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content;
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0]);
-      } else {
-        toast.error('Could not create topic');
-      }
-    },
-  });
+  const { mutate: createTopic, isLoading: isCreatingTopic } =
+    api.topic.create.useMutation({
+      onSuccess: (data) => {
+        toast.success('topic created!');
+        void refetchTopics();
+        setSelectedTopic(selectedTopic ?? data ?? null);
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error('Could not create topic');
+        }
+      },
+    });
 
   const deleteTopic = api.topic.delete.useMutation({
     onSuccess: () => {
+      toast.success('topic deleted');
       setSelectedTopic(null);
       void refetchTopics();
     },
@@ -217,9 +215,10 @@ const Content: React.FC = () => {
   const { mutate: createNote, isLoading: isCreatingNote } =
     api.note.create.useMutation({
       onSuccess: (data) => {
-        toast.success('note created!');
         void refetchNotes();
+        void refetchTopics();
         setSelectedNote(selectedNote ?? data ?? null);
+        toast.success('note created!');
       },
       onError: (e) => {
         const errorMessage = e.data?.zodError?.fieldErrors.title;
@@ -266,33 +265,36 @@ const Content: React.FC = () => {
         </div>
       );
     }
-
     return (
-      <ul className="menu rounded-box w-56 bg-base-100 p-2">
-        {topics?.map((topic) => (
-          <li key={topic.id} style={{ height: '40px' }}>
-            <div id="topicDiv" className="">
-              <TopicSelector
-                handleClick={(event, topic) => {
-                  handleClick(event, topic);
-                }}
-                topic={topic}
-                isSelected={topic.id === selectedTopic?.id}
-              />
-              <div className="">
-                <button
-                  onClick={() => {
-                    deleteTopic.mutate({ id: topic.id });
-                  }}
-                  className="btn btn-warning btn-xs px-5"
-                >
-                  delete
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <>
+        {topics?.length ? (
+          <ul className="menu rounded-box w-56 bg-base-100 p-2">
+            {topics?.map((topic) => (
+              <li key={topic.id} style={{ height: '40px' }}>
+                <div id="topicDiv" className="">
+                  <TopicSelector
+                    handleClick={(event, topic) => {
+                      handleClick(event, topic);
+                    }}
+                    topic={topic}
+                    isSelected={topic.id === selectedTopic?.id}
+                  />
+                  <div className="">
+                    <button
+                      onClick={() => {
+                        deleteTopic.mutate({ id: topic.id });
+                      }}
+                      className="btn btn-warning btn-xs px-5"
+                    >
+                      delete
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </>
     );
   };
 
@@ -333,7 +335,7 @@ const Content: React.FC = () => {
         className="input input-bordered input-sm w-full"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            createTopic.mutate({
+            createTopic({
               name: e.currentTarget.value,
             });
             e.currentTarget.value = '';
@@ -356,6 +358,28 @@ const Content: React.FC = () => {
     );
   };
 
+  type AddNoteButtonProps = {
+    styleClass?: string;
+    buttonLabel?: string;
+  };
+
+  const AddNoteButton = ({
+    styleClass = '',
+    buttonLabel = 'Add Note',
+  }: AddNoteButtonProps) => {
+    return (
+      <button
+        className={`btn btn-primary btn-outline ${styleClass}`}
+        onClick={(): void => {
+          setSelectedNote(null);
+          setIsShowModal(true);
+        }}
+      >
+        {buttonLabel}
+      </button>
+    );
+  };
+
   // Is the note editor modal currently visible?
   const [isModalVisible, setIsModalVisible] = useState(false);
   // Has the 'Add Note' button been clicked?
@@ -368,34 +392,37 @@ const Content: React.FC = () => {
   return (
     <>
       <div tabIndex={0}>
+        {/* only show app page if there's a session */}
         {sessionData ? (
-          <div className="mx-5 mt-5 grid grid-cols-10 gap-2">
-            <div id="leftOptions" className="col-span-4 px-2">
-              <CreateTopicButton />
-              <Topics />
-            </div>
-            {selectedTopic && (
-              <div id="rightDiv" className="col-span-6">
-                {selectedTopic && (
-                  <button
-                    className="btn"
-                    onClick={(): void => {
-                      setSelectedNote(null);
-                      setIsShowModal(true);
-                    }}
-                  >
-                    Add Note
-                  </button>
-                )}
+          <div className="mx-5 mt-5 grid grid-cols-10 justify-items-center gap-2">
+            {/* if there are no topics / notes, just show an add note button */}
+            {topics && topics?.length ? (
+              <>
+                <div id="leftOptions" className="col-span-3 px-2">
+                  <CreateTopicButton />
+                  <Topics />
+                </div>
 
-                {selectedTopic && <Notes />}
-              </div>
+                <div id="rightDiv" className="col-span-7">
+                  {selectedTopic && <AddNoteButton />}
+                  {selectedTopic && <Notes />}
+                </div>
+              </>
+            ) : (
+              <AddNoteButton styleClass="col-span-10 btn-wide btn-lg" />
             )}
-            {isCreatingNote && (
-              <div className="flex items-center justify-center">
-                <LoadingPage />
-              </div>
-            )}
+            {/* {topics && topics.length > 0 && ( */}
+            {/*   <div id="rightDiv" className="col-span-7"> */}
+            {/*     {selectedTopic && <AddNoteButton />} */}
+            {/*     {selectedTopic && <Notes />} */}
+            {/*   </div> */}
+            {/* )} */}
+            {isCreatingNote ||
+              (isCreatingTopic && (
+                <div className="flex items-center justify-center">
+                  <LoadingPage />
+                </div>
+              ))}
             <Modal
               setIsVisible={handleIsModalVisible}
               isVisible={isModalVisible}
@@ -406,7 +433,7 @@ const Content: React.FC = () => {
                 topics={topics}
                 isOpen={isModalVisible}
                 note={selectedNote}
-                onSave={({ topic, title, content }) => {
+                onSave={({ newTopic, topic, title, content }) => {
                   if (selectedNote) {
                     // update note if there is a selected note
                     updateNote({
@@ -422,6 +449,7 @@ const Content: React.FC = () => {
                       content,
                       // topicId: selectedTopic?.id ?? '',
                       topicId: topic ?? '',
+                      topicName: newTopic,
                     });
                   }
                 }}

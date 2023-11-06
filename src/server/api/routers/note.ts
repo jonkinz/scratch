@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { NoteSchema } from '~/constants/NoteSchema';
 import { UpdateNoteSchema } from '~/constants/UpdateNoteSchema';
+import { topicRouter } from './topic';
 
 export const noteRouter = createTRPCRouter({
   delete: protectedProcedure
@@ -20,6 +21,19 @@ export const noteRouter = createTRPCRouter({
       NoteSchema
     )
     .mutation(async ({ ctx, input }) => {
+      // const authorId = ctx.session.user.id;
+      // const { success } = await ratelimit.limit(authorId);
+      // if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' });
+      if (input.topicName) {
+        const topic = await ctx.prisma.topic.create({
+          data: {
+            name: input.topicName,
+            userId: ctx.session.user.id,
+          },
+        });
+
+        input.topicId = topic.id;
+      }
       return ctx.prisma.note.create({
         data: {
           title: input.title,
